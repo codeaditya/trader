@@ -399,19 +399,12 @@ def _pop_unnecessary_keys(data):
     unnecessary keys for final output.
 
     """
+    unnecessary_keys = ['Change', 'Change_pct', 'Turnover', 'PE', 'PB', 'ISIN',
+                        'Div_yield', 'Prev_Close', 'Skip', 'Series', 'LTP',
+                        'Total_Trades']
     for element in data:
-        element.pop('Change', None)
-        element.pop('Change_pct', None)
-        element.pop('Turnover', None)
-        element.pop('PE', None)
-        element.pop('PB', None)
-        element.pop('Div_yield', None)
-        element.pop('Prev_Close', None)
-        element.pop('Skip', None)
-        element.pop('Series', None)
-        element.pop('LTP', None)
-        element.pop('Total_Trades', None)
-        element.pop('ISIN', None)
+        for key in unnecessary_keys:
+            element.pop(key, None)
 
 
 def _format_output_data(data):
