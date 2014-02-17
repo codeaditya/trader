@@ -589,6 +589,16 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
     : output_data : a list each element of which is a dictionary
 
     """
+    # Generate a dictionary with key as (Symbol, Series) tuple and
+    # value as OI from input_delv. We would use this to get the value of
+    # OI for our record below.
+    # This is tremendously faster than looping through input_delv for
+    # each foo in input_bhav.
+    bar_oi = None
+    if input_delv:
+        bar_oi = {(bar['Symbol'], bar['Series']): bar.get('OI') for bar in input_delv}
+
+    # Loop through input_bhav
     for foo in input_bhav:
         record = None
         if foo['Series'] == 'BE':
@@ -599,10 +609,7 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
             if input_delv is None:
                 record['OI'] = '0'
             else:
-                for bar in input_delv:
-                    if (foo['Symbol'] == bar['Symbol']) and (
-                            foo['Series'] == bar['Series']):
-                        record['OI'] = bar.get('OI')
+                record['OI'] = bar_oi.get((foo['Symbol'], foo['Series']))
         if record:
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
@@ -746,5 +753,5 @@ def _output_nse_equities(date,
 
 if __name__ == "__main__":
     # Toggle the debugging argument as necessary
-    process_nse_equities("2014-02-01", "2014-02-03", debugging=False)
-    process_nse_indices("2014-02-01", "2014-02-03", debugging=False)
+    process_nse_equities("2014-02-01", "2014-02-03", debugging=True)
+    process_nse_indices("2014-02-01", "2014-02-03", debugging=True)
