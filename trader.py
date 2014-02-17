@@ -157,25 +157,16 @@ def process_nse_indices(start_date_str,
 
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
-        if ignore_weekend:
-            if datetime.date.isoweekday(current_date) == 6:
-                pass
-            elif datetime.date.isoweekday(current_date) == 7:
-                pass
-            else:
-                _download_nse_indices(current_date,
-                                      download_location=download_location,
-                                      debugging=debugging)
-                _output_nse_indices(current_date,
-                                    input_location=download_location,
-                                    output_location=output_location)
-        else:
-            _download_nse_indices(current_date,
-                                  download_location=download_location,
-                                  debugging=debugging)
-            _output_nse_indices(current_date,
-                                input_location=download_location,
-                                output_location=output_location)
+        if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
+            logger.debug("Skipped NSE Indices for {0}".format(current_date))
+            current_date += time_delta
+            continue
+        _download_nse_indices(current_date,
+                              download_location=download_location,
+                              debugging=debugging)
+        _output_nse_indices(current_date,
+                            input_location=download_location,
+                            output_location=output_location)
         current_date += time_delta
 
 
@@ -236,25 +227,16 @@ def process_nse_equities(start_date_str,
 
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
-        if ignore_weekend:
-            if datetime.date.isoweekday(current_date) == 6:
-                pass
-            elif datetime.date.isoweekday(current_date) == 7:
-                pass
-            else:
-                _download_nse_equities(current_date,
-                                       download_location=download_location,
-                                       debugging=debugging)
-                _output_nse_equities(current_date,
-                                     input_location=download_location,
-                                     output_location=output_location)
-        else:
-            _download_nse_equities(current_date,
-                                   download_location=download_location,
-                                   debugging=debugging)
-            _output_nse_equities(current_date,
-                                 input_location=download_location,
-                                 output_location=output_location)
+        if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
+            logger.debug("Skipped NSE Equities for {0}".format(current_date))
+            current_date += time_delta
+            continue
+        _download_nse_equities(current_date,
+                               download_location=download_location,
+                               debugging=debugging)
+        _output_nse_equities(current_date,
+                             input_location=download_location,
+                             output_location=output_location)
         current_date += time_delta
 
 
