@@ -102,8 +102,8 @@ logger.addHandler(ch)
 
 def process_nse_indices(start_date_str,
                         end_date_str,
-                        download_location=os.getcwd() + r'/downloads/',
-                        output_location=os.getcwd() + r'/processed_data/',
+                        download_location=os.path.join(os.getcwd(), 'downloads'),
+                        output_location=os.path.join(os.getcwd(), 'processed_data'),
                         ignore_weekend=True,
                         debugging=False):
     """Processes the data for NSE Indices.
@@ -172,8 +172,8 @@ def process_nse_indices(start_date_str,
 
 def process_nse_equities(start_date_str,
                          end_date_str,
-                         download_location=os.getcwd() + r'/downloads/',
-                         output_location=os.getcwd() + r'/processed_data/',
+                         download_location=os.path.join(os.getcwd(), 'downloads'),
+                         output_location=os.path.join(os.getcwd(), 'processed_data'),
                          ignore_weekend=True,
                          debugging=False):
     """Processes the data for NSE Equities.
@@ -240,7 +240,8 @@ def process_nse_equities(start_date_str,
         current_date += time_delta
 
 
-def download_file(*urls, download_location=os.getcwd() + r'/downloads',
+def download_file(*urls,
+                  download_location=os.path.join(os.getcwd(), 'downloads'),
                   debugging=False):
     """Downloads the files provided as multiple url arguments.
 
@@ -299,7 +300,7 @@ def download_file(*urls, download_location=os.getcwd() + r'/downloads',
                     logger.warning("{0}: Error Reason: {1}."
                                    "".format(filename, e.reason))
             else:
-                output_file = download_location + filename
+                output_file = os.path.join(download_location, filename)
                 read_response = response_received.read()
                 # Since we "Accept-Encoding" as "gzip", we need to
                 # decompress the response if received as such
@@ -321,8 +322,8 @@ def ensure_trailing_slash(input_string):
     """Ensures that there is a trailing slash at the end of the string.
 
     """
-    if input_string[-1] != '/':
-        input_string += '/'
+    if not input_string.endswith(os.sep):
+        input_string = os.path.join(input_string, '')
     return input_string
 
 
@@ -429,7 +430,8 @@ def _format_output_data(data):
         element['OI'] = element['OI'].strip()
 
 
-def _download_nse_indices(date, download_location=os.getcwd() + r'/downloads/',
+def _download_nse_indices(date,
+                          download_location=os.path.join(os.getcwd(), 'downloads'),
                           debugging=False):
     """Downloads the files for NSE Indices.
 
@@ -457,7 +459,8 @@ def _download_nse_indices(date, download_location=os.getcwd() + r'/downloads/',
                   debugging=debugging)
 
 
-def _download_nse_equities(date, download_location=os.getcwd() + r'/downloads/',
+def _download_nse_equities(date,
+                           download_location=os.path.join(os.getcwd(), 'downloads'),
                            debugging=False):
     """Downloads the files for NSE Equities.
 
@@ -614,20 +617,21 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
     return output_data
 
 
-def _output_nse_indices(date, input_location=os.getcwd() + r'/downloads/',
-                        output_location=os.getcwd() + r'/processed_data/'):
+def _output_nse_indices(date,
+                        input_location=os.path.join(os.getcwd(), 'downloads'),
+                        output_location=os.path.join(os.getcwd(), 'processed_data')):
     """Outputs the files for NSE Indices as csv.
 
     """
     bhav_filename, vix_filename, ind_filename = _get_nse_indices_filenames(date)
 
     # Input files
-    bhav_file = input_location + bhav_filename
-    vix_file = input_location + vix_filename
+    bhav_file = os.path.join(input_location, bhav_filename)
+    vix_file = os.path.join(input_location, vix_filename)
 
     # Where would we save the processed files
     create_folder(output_location)
-    ind_file = output_location + ind_filename
+    ind_file = os.path.join(output_location, ind_filename)
 
     # Fieldnames present in files
     bhav_fieldnames, vix_fieldnames, ind_fieldnames = _get_nse_indices_fieldnames()
@@ -676,24 +680,25 @@ def _output_nse_indices(date, input_location=os.getcwd() + r'/downloads/',
         write_csv(ind_file, ind_header, ind_fieldnames, data)
 
 
-def _output_nse_equities(date, input_location=os.getcwd() + r'/downloads/',
-                         output_location=os.getcwd() + r'/processed_data/'):
+def _output_nse_equities(date,
+                        input_location=os.path.join(os.getcwd(), 'downloads'),
+                        output_location=os.path.join(os.getcwd(), 'processed_data')):
     """Outputs the files for NSE Equities as csv.
 
     """
     bhav_filename, delv_filename, eq_filename = _get_nse_equities_filenames(date)
 
     # Input files
-    bhav_file = input_location + bhav_filename
-    delv_file = input_location + delv_filename
+    bhav_file = os.path.join(input_location, bhav_filename)
+    delv_file = os.path.join(input_location, delv_filename)
 
     # Where would we save the processed files
     create_folder(output_location)
-    eq_file = output_location + eq_filename
+    eq_file = os.path.join(output_location, eq_filename)
 
     # Extract the bhav_file downloaded as zip and refer to extracted csv file
     unzip(bhav_file)
-    bhav_file = os.getcwd() + r'/' + os.path.splitext(bhav_filename)[0]
+    bhav_file = os.path.join(os.getcwd(), os.path.splitext(bhav_filename)[0])
 
     # Fieldnames present in files
     bhav_fieldnames, delv_fieldnames, eq_fieldnames = _get_nse_equities_fieldnames()
@@ -748,5 +753,5 @@ def _output_nse_equities(date, input_location=os.getcwd() + r'/downloads/',
 
 if __name__ == "__main__":
     # Toggle the debugging argument as necessary
-    process_nse_equities("2014-02-01", "2014-02-03", debugging=True)
-    process_nse_indices("2014-02-01", "2014-02-03", debugging=True)
+    process_nse_equities("2014-02-01", "2014-02-03", debugging=False)
+    process_nse_indices("2014-02-01", "2014-02-03", debugging=False)
