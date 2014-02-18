@@ -102,7 +102,7 @@ logger.addHandler(ch)
 
 
 def process_nse_indices(start_date,
-                        end_date,
+                        end_date=None,
                         download_location=os.path.join(os.getcwd(), 'downloads'),
                         output_location=os.path.join(os.getcwd(), 'processed_data'),
                         ignore_weekend=True,
@@ -139,10 +139,8 @@ def process_nse_indices(start_date,
                            Used to pass the argument to
                            `_download_nse_indices()`.
 
-    The first two parameters are compulsory; ie; both start_date and
-    end_date should be provided. They may be same however.
-
     Examples:
+    >>>process_nse_indices("2014-01-01")
     >>>process_nse_indices("2014-01-01", "2014-01-01")
     >>>process_nse_indices("2014-01-01", "2014-01-31")
     >>>process_nse_indices(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
@@ -152,6 +150,9 @@ def process_nse_indices(start_date,
 
     """
     logger.debug("Processing NSE Indices")
+
+    if end_date is None:
+        end_date = start_date
 
     # Ensure date inputs are datetime.date objects
     start_date = to_datetime_date(start_date)
@@ -177,7 +178,7 @@ def process_nse_indices(start_date,
 
 
 def process_nse_equities(start_date,
-                         end_date,
+                         end_date=None,
                          download_location=os.path.join(os.getcwd(), 'downloads'),
                          output_location=os.path.join(os.getcwd(), 'processed_data'),
                          ignore_weekend=True,
@@ -214,10 +215,8 @@ def process_nse_equities(start_date,
                            Used to pass the argument to
                            `_download_nse_equities()`.
 
-    The first two parameters are compulsory; ie; both start_date and
-    end_date should be provided. They may be same however.
-
     Examples:
+    >>>process_nse_equities("2014-01-01")
     >>>process_nse_equities("2014-01-01", "2014-01-01")
     >>>process_nse_equities("2014-01-01", "2014-01-31")
     >>>process_nse_equities(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
@@ -227,6 +226,9 @@ def process_nse_equities(start_date,
 
     """
     logger.debug("Processing NSE Equities")
+
+    if end_date is None:
+        end_date = start_date
 
     # Ensure date inputs are datetime.date objects
     start_date = to_datetime_date(start_date)
