@@ -18,6 +18,7 @@ This module provides the following user-facing functions:
 - :`process_nse_indices()`: download and process NSE Indices data to save as csv
 - :`process_nse_equities()`: download and process NSE Equity data to save as csv
 - :`download_file()`: download the files off internet
+- :`to_datetime_date()` : return datetime.date object where possible else None
 - :`ensure_trailing_slash()`: ensure a trailing slash at the end of the string
 - :`create_folder()`: create the folder in a safe manner
 - :`get_request_headers()`: return "request headers" dict for download_file()

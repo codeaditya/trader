@@ -35,6 +35,7 @@ This module provides the following user-facing functions:
 - :`process_nse_indices()`: download and process NSE Indices data to save as csv
 - :`process_nse_equities()`: download and process NSE Equity data to save as csv
 - :`download_file()`: download the files off internet
+- :`to_datetime_date()` : return datetime.date object where possible else None
 - :`ensure_trailing_slash()`: ensure a trailing slash at the end of the string
 - :`create_folder()`: create the folder in a safe manner
 - :`get_request_headers()`: return "request headers" dict for download_file()
@@ -100,8 +101,8 @@ logger.addHandler(ch)
 ###############################################################################
 
 
-def process_nse_indices(start_date_str,
-                        end_date_str,
+def process_nse_indices(start_date,
+                        end_date,
                         download_location=os.path.join(os.getcwd(), 'downloads'),
                         output_location=os.path.join(os.getcwd(), 'processed_data'),
                         ignore_weekend=True,
@@ -109,12 +110,16 @@ def process_nse_indices(start_date_str,
     """Processes the data for NSE Indices.
 
     The function takes six arguments:
-     : start_date_str    : Date in the form of a string "YYYY-MM-DD"
-                           like "2014-01-01". This refers the date from
-                           when the files should be downloaded.
-     : end_date_str      : Date in the form of a string "YYYY-MM-DD"
-                           like "2014-01-31". This refers the date upto
-                           which the files should be downloaded.
+     : start_date        : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-01".
+                           This refers the date from when the files
+                           should be downloaded.
+     : end_date          : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-31".
+                           This refers the date upto which the files
+                           should be downloaded.
      : download_location : Where to save the downloaded files.
                            Used to pass as download_location argument to
                            `_download_nse_indices()` and input_location
@@ -134,12 +139,13 @@ def process_nse_indices(start_date_str,
                            Used to pass the argument to
                            `_download_nse_indices()`.
 
-    The first two parameters are compulsory; ie; both start_date_str and
-    end_date_str should be provided. They may be same however.
+    The first two parameters are compulsory; ie; both start_date and
+    end_date should be provided. They may be same however.
 
     Examples:
     >>>process_nse_indices("2014-01-01", "2014-01-01")
     >>>process_nse_indices("2014-01-01", "2014-01-31")
+    >>>process_nse_indices(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
     >>>process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False)
     >>>process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
     >>>process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
@@ -147,9 +153,9 @@ def process_nse_indices(start_date_str,
     """
     logger.debug("Processing NSE Indices")
 
-    # Converting date strings into datetime.datetime objects
-    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    # Ensure date inputs are datetime.date objects
+    start_date = to_datetime_date(start_date)
+    end_date = to_datetime_date(end_date)
 
     # Other initialization stuff
     current_date = start_date
@@ -170,8 +176,8 @@ def process_nse_indices(start_date_str,
         current_date += time_delta
 
 
-def process_nse_equities(start_date_str,
-                         end_date_str,
+def process_nse_equities(start_date,
+                         end_date,
                          download_location=os.path.join(os.getcwd(), 'downloads'),
                          output_location=os.path.join(os.getcwd(), 'processed_data'),
                          ignore_weekend=True,
@@ -179,12 +185,16 @@ def process_nse_equities(start_date_str,
     """Processes the data for NSE Equities.
 
     The function takes six arguments:
-     : start_date_str    : Date in the form of a string "YYYY-MM-DD"
-                           like "2014-01-01". This refers the date from
-                           when the files should be downloaded.
-     : end_date_str      : Date in the form of a string "YYYY-MM-DD"
-                           like "2014-01-31". This refers the date upto
-                           which the files should be downloaded.
+     : start_date        : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-01".
+                           This refers the date from when the files
+                           should be downloaded.
+     : end_date          : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-31".
+                           This refers the date upto which the files
+                           should be downloaded.
      : download_location : Where to save the downloaded files.
                            Used to pass as download_location argument to
                            `_download_nse_equities()` and input_location
@@ -204,12 +214,13 @@ def process_nse_equities(start_date_str,
                            Used to pass the argument to
                            `_download_nse_equities()`.
 
-    The first two parameters are compulsory; ie; both start_date_str and
-    end_date_str should be provided. They may be same however.
+    The first two parameters are compulsory; ie; both start_date and
+    end_date should be provided. They may be same however.
 
     Examples:
     >>>process_nse_equities("2014-01-01", "2014-01-01")
     >>>process_nse_equities("2014-01-01", "2014-01-31")
+    >>>process_nse_equities(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
     >>>process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False)
     >>>process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
     >>>process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
@@ -217,9 +228,9 @@ def process_nse_equities(start_date_str,
     """
     logger.debug("Processing NSE Equities")
 
-    # Converting date strings into datetime.datetime objects
-    start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-    end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    # Ensure date inputs are datetime.date objects
+    start_date = to_datetime_date(start_date)
+    end_date = to_datetime_date(end_date)
 
     # Misc variables
     current_date = start_date
@@ -316,6 +327,22 @@ def download_file(*urls,
         else:
             logger.debug("DEBUGGING: {0} would be downloaded from {1}."
                          "".format(filename, url))
+
+
+def to_datetime_date(input):
+    """Checks the type of input and returns a datetime.date object where
+    possible, else returns None. If input is a string not in format of
+    '%Y-%m-%d' like 2013-12-31, it would raise ValueError.
+
+    """
+    date = None
+    if type(input) is datetime.date:
+        date = input
+    elif type(input) is datetime.datetime:
+        date = input.date()
+    elif type(input) is str:
+        date = datetime.datetime.strptime(input, '%Y-%m-%d').date()
+    return date
 
 
 def ensure_trailing_slash(input_string):
