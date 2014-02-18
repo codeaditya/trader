@@ -412,15 +412,15 @@ def _format_output_data(data):
     the keys for final output.
 
     """
+    strip_spaces = ['Symbol', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI']
+    format_floats = ['Open', 'High', 'Low', 'Close']
+
     for element in data:
-        element['Symbol'] = element['Symbol'].strip()
-        # element['Date'] is to be formatted in respective functions
-        element['Open'] = "{0:.2f}".format(float(element['Open'].strip()))
-        element['High'] = "{0:.2f}".format(float(element['High'].strip()))
-        element['Low'] = "{0:.2f}".format(float(element['Low'].strip()))
-        element['Close'] = "{0:.2f}".format(float(element['Close'].strip()))
-        element['Volume'] = element['Volume'].strip()
-        element['OI'] = element['OI'].strip()
+        # element['Date'] is to be formatted in _manipulate_*() functions
+        for key in strip_spaces:
+            element[key] = element[key].strip()
+        for key in format_floats:
+            element[key] = "{0:.2f}".format(float(element[key]))
 
 
 def _download_nse_indices(date,
