@@ -157,7 +157,7 @@ def process_nse_indices(start_date,
     >>>process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
-    logger.debug("Processing NSE Indices")
+    logger.info("Processing NSE Indices...")
 
     if end_date is None:
         end_date = start_date
@@ -173,7 +173,7 @@ def process_nse_indices(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Indices for {0}".format(current_date))
+            logger.debug("Skipped NSE Indices for {0}.".format(current_date))
             current_date += time_delta
             continue
         _download_nse_indices(current_date,
@@ -233,7 +233,7 @@ def process_nse_equities(start_date,
     >>>process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
-    logger.debug("Processing NSE Equities")
+    logger.info("Processing NSE Equities...")
 
     if end_date is None:
         end_date = start_date
@@ -249,7 +249,7 @@ def process_nse_equities(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Equities for {0}".format(current_date))
+            logger.debug("Skipped NSE Equities for {0}.".format(current_date))
             current_date += time_delta
             continue
         _download_nse_equities(current_date,
@@ -309,7 +309,7 @@ def process_nse_futures(start_date,
     >>>process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
-    logger.debug("Processing NSE Futures")
+    logger.info("Processing NSE Futures...")
 
     if end_date is None:
         end_date = start_date
@@ -325,7 +325,7 @@ def process_nse_futures(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Futures for {0}".format(current_date))
+            logger.debug("Skipped NSE Futures for {0}.".format(current_date))
             current_date += time_delta
             continue
         _download_nse_futures(current_date,
@@ -380,9 +380,9 @@ def download_file(*urls,
 
     # Loop through all the files to be downloaded
     for url in urls:
-        logger.info("Processing {0}.".format(url))
         filename = os.path.basename(url)
         if not debugging:
+            logger.info("Downloading {0}.".format(url))
             try:
                 request_sent = urllib.request.Request(url, headers=headers)
                 response_received = urllib.request.urlopen(request_sent)
@@ -555,7 +555,7 @@ def _download_nse_indices(date,
                       for INDIAVIX is not present in the Bhavcopy File.
 
     """
-    # Generate download URL
+    # Generate download URLs
     bhavcopy = r'http://www.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
     vix = r'http://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
