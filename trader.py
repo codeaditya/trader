@@ -697,7 +697,7 @@ def _get_nse_equities_filenames(date):
         current_date=(date.strftime('%d%b%Y')).upper())
     delv_filename = r'MTO_{current_date}.DAT'.format(
         current_date=date.strftime('%d%m%Y'))
-    eq_filename = r'NSE-EQ-{current_date}.csv'.format(
+    eq_filename = r'NSE-Equities-{current_date}.csv'.format(
         current_date=date.strftime('%Y-%m-%d'))
     return bhav_filename, delv_filename, eq_filename
 
