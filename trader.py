@@ -415,19 +415,19 @@ def download_file(*urls,
                          "".format(filename, url))
 
 
-def to_datetime_date(input):
-    """Checks the type of input and returns a datetime.date object where
-    possible, else returns None. If input is a string not in format of
-    '%Y-%m-%d' like 2013-12-31, it would raise ValueError.
+def to_datetime_date(input_date):
+    """Checks the type of input_date and returns a datetime.date object
+    where possible, else returns None. If input_date is a string not in
+    format of '%Y-%m-%d' like 2013-12-31, it would raise ValueError.
 
     """
     date = None
-    if type(input) is datetime.date:
-        date = input
-    elif type(input) is datetime.datetime:
-        date = input.date()
-    elif type(input) is str:
-        date = datetime.datetime.strptime(input, '%Y-%m-%d').date()
+    if type(input_date) is datetime.date:
+        date = input_date
+    elif type(input_date) is datetime.datetime:
+        date = input_date.date()
+    elif type(input_date) is str:
+        date = datetime.datetime.strptime(input_date, '%Y-%m-%d').date()
     return date
 
 
