@@ -544,9 +544,9 @@ def _download_nse_indices(date,
     """Downloads the files for NSE Indices.
 
     The function takes one of the arguments as date which is a
-    datetime.datetime object passed by the `process_nse_indices()`
-    function. So, this function ie; `_download_nse_indices()` is not
-    intended to be used on a standalone basis.
+    datetime.date object passed by `process_nse_indices()` function.
+    So, this function ie; `_download_nse_indices()` is not intended to
+    be used on a standalone basis.
 
     The files downloaded are:
     : Bhavcopy File : This is the main file which contains most of the
@@ -573,9 +573,9 @@ def _download_nse_equities(date,
     """Downloads the files for NSE Equities.
 
     The function takes one of the arguments as date which is a
-    datetime.datetime object passed by the `process_nse_equities()`
-    function. So, this function ie; `_download_nse_equities()` is not
-    intended to be used on a standalone basis.
+    datetime.date object passed by `process_nse_equities()` function.
+    So, this function ie; `_download_nse_equities()` is not intended to
+    be used on a standalone basis.
 
     The files downloaded are:
     : Bhavcopy File : This is the main file which contains most of the
@@ -609,9 +609,9 @@ def _download_nse_futures(date,
     """Downloads the files for NSE Futures.
 
     The function takes one of the arguments as date which is a
-    datetime.datetime object passed by the `process_nse_futures()`
-    function. So, this function ie; `_download_nse_futures()` is not
-    intended to be used on a standalone basis.
+    datetime.date object passed by `process_nse_futures()` function.
+    So, this function ie; `_download_nse_futures()` is not intended to
+    be used on a standalone basis.
 
     The files downloaded are:
     : Bhavcopy File : This is the main file which contains most of the
@@ -889,8 +889,8 @@ def _output_nse_indices(date,
 
 
 def _output_nse_equities(date,
-                        input_location=os.path.join(os.getcwd(), 'downloads'),
-                        output_location=os.path.join(os.getcwd(), 'processed_data')):
+                         input_location=os.path.join(os.getcwd(), 'downloads'),
+                         output_location=os.path.join(os.getcwd(), 'processed_data')):
     """Outputs the files for NSE Equities as csv.
 
     """
