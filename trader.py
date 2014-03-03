@@ -111,8 +111,10 @@ logger.addHandler(ch)
 
 def process_nse_indices(start_date,
                         end_date=None,
-                        download_location=os.path.join(os.getcwd(), 'downloads'),
-                        output_location=os.path.join(os.getcwd(), 'processed_data'),
+                        download_location=os.path.join(os.getcwd(),
+                                                       'downloads'),
+                        output_location=os.path.join(os.getcwd(),
+                                                     'processed_data'),
                         ignore_weekend=True,
                         debugging=False):
     """Processes the data for NSE Indices.
@@ -187,8 +189,10 @@ def process_nse_indices(start_date,
 
 def process_nse_equities(start_date,
                          end_date=None,
-                         download_location=os.path.join(os.getcwd(), 'downloads'),
-                         output_location=os.path.join(os.getcwd(), 'processed_data'),
+                         download_location=os.path.join(os.getcwd(),
+                                                        'downloads'),
+                         output_location=os.path.join(os.getcwd(),
+                                                      'processed_data'),
                          ignore_weekend=True,
                          debugging=False):
     """Processes the data for NSE Equities.
@@ -263,8 +267,10 @@ def process_nse_equities(start_date,
 
 def process_nse_futures(start_date,
                         end_date=None,
-                        download_location=os.path.join(os.getcwd(), 'downloads'),
-                        output_location=os.path.join(os.getcwd(), 'processed_data'),
+                        download_location=os.path.join(os.getcwd(),
+                                                       'downloads'),
+                        output_location=os.path.join(os.getcwd(),
+                                                     'processed_data'),
                         ignore_weekend=True,
                         debugging=False):
     """Processes the data for NSE Futures.
@@ -539,7 +545,8 @@ def _format_output_data(data):
 
 
 def _download_nse_indices(date,
-                          download_location=os.path.join(os.getcwd(), 'downloads'),
+                          download_location=os.path.join(os.getcwd(),
+                                                         'downloads'),
                           debugging=False):
     """Downloads the files for NSE Indices.
 
@@ -568,7 +575,8 @@ def _download_nse_indices(date,
 
 
 def _download_nse_equities(date,
-                           download_location=os.path.join(os.getcwd(), 'downloads'),
+                           download_location=os.path.join(os.getcwd(),
+                                                          'downloads'),
                            debugging=False):
     """Downloads the files for NSE Equities.
 
@@ -604,7 +612,8 @@ def _download_nse_equities(date,
 
 
 def _download_nse_futures(date,
-                          download_location=os.path.join(os.getcwd(), 'downloads'),
+                          download_location=os.path.join(os.getcwd(),
+                                                         'downloads'),
                           debugging=False):
     """Downloads the files for NSE Futures.
 
@@ -762,9 +771,9 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
     # OI for our record below.
     # This is tremendously faster than looping through input_delv for
     # each foo in input_bhav.
-    bar_oi = None
+    delv_oi = None
     if input_delv:
-        bar_oi = {(bar['Symbol'], bar['Series']): bar.get('OI') for bar in input_delv}
+        delv_oi = {(x['Symbol'], x['Series']): x.get('OI') for x in input_delv}
 
     # Loop through input_bhav
     for foo in input_bhav:
@@ -777,7 +786,7 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
             if input_delv is None:
                 record['OI'] = '0'
             else:
-                record['OI'] = bar_oi.get((foo['Symbol'], foo['Series']))
+                record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']))
         if record:
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
@@ -826,8 +835,10 @@ def _manipulate_nse_futures(input_bhav, output_data):
 
 
 def _output_nse_indices(date,
-                        input_location=os.path.join(os.getcwd(), 'downloads'),
-                        output_location=os.path.join(os.getcwd(), 'processed_data')):
+                        input_location=os.path.join(os.getcwd(),
+                                                    'downloads'),
+                        output_location=os.path.join(os.getcwd(),
+                                                     'processed_data')):
     """Outputs the files for NSE Indices as csv.
 
     """
@@ -889,8 +900,10 @@ def _output_nse_indices(date,
 
 
 def _output_nse_equities(date,
-                         input_location=os.path.join(os.getcwd(), 'downloads'),
-                         output_location=os.path.join(os.getcwd(), 'processed_data')):
+                         input_location=os.path.join(os.getcwd(),
+                                                     'downloads'),
+                         output_location=os.path.join(os.getcwd(),
+                                                      'processed_data')):
     """Outputs the files for NSE Equities as csv.
 
     """
@@ -960,8 +973,10 @@ def _output_nse_equities(date,
 
 
 def _output_nse_futures(date,
-                        input_location=os.path.join(os.getcwd(), 'downloads'),
-                        output_location=os.path.join(os.getcwd(), 'processed_data')):
+                        input_location=os.path.join(os.getcwd(),
+                                                    'downloads'),
+                        output_location=os.path.join(os.getcwd(),
+                                                     'processed_data')):
     """Outputs the files for NSE Futures as csv.
 
     """
@@ -972,7 +987,7 @@ def _output_nse_futures(date,
 
     # Where would we save the processed files
     create_folder(output_location)
-    fno_file = os.path.join(output_location, fut_filename)
+    fut_file = os.path.join(output_location, fut_filename)
 
     # Extract the bhav_file downloaded as zip and refer to extracted csv file
     unzip(bhav_file)
@@ -982,7 +997,8 @@ def _output_nse_futures(date,
     bhav_fieldnames, fut_fieldnames = _get_nse_futures_fieldnames()
 
     # The header line which we would write in the output file
-    fno_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI'
+    fut_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', \
+                 'OI'
 
     try:
         # Read the bhav_file as a list, each element of which is a
@@ -1003,7 +1019,7 @@ def _output_nse_futures(date,
                                 output_data=data)
         _pop_unnecessary_keys(data)
         _format_output_data(data)
-        write_csv(fno_file, fno_header, fut_fieldnames, data)
+        write_csv(fut_file, fut_header, fut_fieldnames, data)
     os.remove(bhav_file)
 
 
