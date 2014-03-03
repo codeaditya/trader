@@ -29,13 +29,15 @@ Currently, the module provides support for the following Exchange/Segments:
 
 - NSE/Indices (India)
 - NSE/Equity (India)
+- NSE/Futures (India)
 
 This module provides the following user-facing functions:
 
 - :`process_nse_indices()`: download and process NSE Indices data to save as csv
 - :`process_nse_equities()`: download and process NSE Equity data to save as csv
+- :`process_nse_futures()`: download and process NSE Futures data to save as csv
 - :`download_file()`: download the files off internet
-- :`to_datetime_date()` : return datetime.date object where possible else None
+- :`to_datetime_date()`: return datetime.date object where possible else None
 - :`ensure_trailing_slash()`: ensure a trailing slash at the end of the string
 - :`create_folder()`: create the folder in a safe manner
 - :`get_request_headers()`: return "request headers" dict for download_file()
@@ -49,14 +51,19 @@ and defines the following private functions:
 - `_format_output_data()`
 - `_download_nse_indices()`
 - `_download_nse_equities()`
+- `_download_nse_futures()`
 - `_get_nse_indices_fieldnames()`
 - `_get_nse_equities_fieldnames()`
+- `_get_nse_futures_fieldnames()`
 - `_get_nse_indices_filenames()`
 - `_get_nse_equities_filenames()`
+- `_get_nse_futures_filenames()`
 - `_manipulate_nse_indices()`
 - `_manipulate_nse_equities()`
+- `_manipulate_nse_futures()`
 - `_output_nse_indices()`
 - `_output_nse_equities()`
+- `_output_nse_futures()`
 
 
 How To Use This Module
@@ -67,9 +74,10 @@ How To Use This Module
 
        import trader
 
-2. The user is expected to primarily make use of ``process_nse_indices()`` and
-   ``process_nse_equities()`` functions. Just pass the required arguments to
-   them to download and process the data for required Exchange/Segments.
+2. The user is expected to primarily make use of ``process_nse_indices()``,
+   ``process_nse_equities()`` and ``process_nse_futures()`` functions. Just
+   pass the required arguments to them to download and process the data for
+   required Exchange/Segments.
 
 3. ``download_file()`` function can be used to download anything off the
    internet.
@@ -253,6 +261,82 @@ def process_nse_equities(start_date,
         current_date += time_delta
 
 
+def process_nse_futures(start_date,
+                        end_date=None,
+                        download_location=os.path.join(os.getcwd(), 'downloads'),
+                        output_location=os.path.join(os.getcwd(), 'processed_data'),
+                        ignore_weekend=True,
+                        debugging=False):
+    """Processes the data for NSE Futures.
+
+    The function takes six arguments:
+     : start_date        : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-01".
+                           This refers the date from when the files
+                           should be downloaded.
+     : end_date          : Accepts date of type datetime.datetime,
+                           datetime.date and str in the form of
+                           "YYYY-MM-DD" like "2014-01-31".
+                           This refers the date upto which the files
+                           should be downloaded.
+     : download_location : Where to save the downloaded files.
+                           Used to pass as download_location argument to
+                           `_download_nse_futures()` and input_location
+                           argument to `_output_nse_futures()`.
+     : output_location   : Where to save the processed output files.
+                           Used to pass as output_location argument to
+                           `_output_nse_futures()`.
+     : ignore_weekend    : This takes boolean values ie; either True or
+                           False. When set as True, it doesn't attempt
+                           to download the data for Saturdays and
+                           Sundays. Set its value as False if any trades
+                           happen on a Saturday or a Sunday. This would
+                           be specially useful in case of Muhurat
+                           Trading.
+     : debugging         : This takes boolean values and doesn't attempt
+                           to download anything when set to True.
+                           Used to pass the argument to
+                           `_download_nse_futures()`.
+
+    Examples:
+    >>>process_nse_futures("2014-01-01")
+    >>>process_nse_futures("2014-01-01", "2014-01-01")
+    >>>process_nse_futures("2014-01-01", "2014-01-31")
+    >>>process_nse_futures(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
+    >>>process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False)
+    >>>process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
+    >>>process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+
+    """
+    logger.debug("Processing NSE Futures")
+
+    if end_date is None:
+        end_date = start_date
+
+    # Ensure date inputs are datetime.date objects
+    start_date = to_datetime_date(start_date)
+    end_date = to_datetime_date(end_date)
+
+    # Other initialization stuff
+    current_date = start_date
+    time_delta = datetime.timedelta(days=1)
+
+    # Loop through dates to download files and output csv files
+    while current_date <= end_date:
+        if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
+            logger.debug("Skipped NSE Futures for {0}".format(current_date))
+            current_date += time_delta
+            continue
+        _download_nse_futures(current_date,
+                              download_location=download_location,
+                              debugging=debugging)
+        _output_nse_futures(current_date,
+                            input_location=download_location,
+                            output_location=output_location)
+        current_date += time_delta
+
+
 def download_file(*urls,
                   download_location=os.path.join(os.getcwd(), 'downloads'),
                   debugging=False):
@@ -430,7 +514,9 @@ def _pop_unnecessary_keys(data):
     """
     unnecessary_keys = ['Change', 'Change_pct', 'Turnover', 'PE', 'PB', 'ISIN',
                         'Div_yield', 'Prev_Close', 'Skip', 'Series', 'LTP',
-                        'Total_Trades']
+                        'Total_Trades', 'Instrument', 'Expiry_Date',
+                        'Strike_Price', 'Option_Type', 'Settlement_Price',
+                        'Contracts', 'Turnover_lakh', 'OI_Change']
     for element in data:
         for key in unnecessary_keys:
             element.pop(key, None)
@@ -517,6 +603,33 @@ def _download_nse_equities(date,
                   debugging=debugging)
 
 
+def _download_nse_futures(date,
+                          download_location=os.path.join(os.getcwd(), 'downloads'),
+                          debugging=False):
+    """Downloads the files for NSE Futures.
+
+    The function takes one of the arguments as date which is a
+    datetime.datetime object passed by the `process_nse_futures()`
+    function. So, this function ie; `_download_nse_futures()` is not
+    intended to be used on a standalone basis.
+
+    The files downloaded are:
+    : Bhavcopy File : This is the main file which contains most of the
+                      required data.
+
+    """
+    # Generate download URLs
+    bhavcopy = r'http://nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
+        year=date.strftime('%Y'),
+        mon=(date.strftime('%b')).upper(),
+        date=date.strftime('%d'))
+
+    # Download the files
+    download_file(bhavcopy,
+                  download_location=download_location,
+                  debugging=debugging)
+
+
 def _get_nse_indices_fieldnames():
     """Returns the fieldnames present in bhavcopy file, vix file and the
     output file for NSE Indices that we would generate.
@@ -547,6 +660,20 @@ def _get_nse_equities_fieldnames():
     return bhav_fieldnames, delv_fieldnames, eq_fieldnames
 
 
+def _get_nse_futures_fieldnames():
+    """Returns the fieldnames present in bhavcopy file and the output
+    file for NSE Futures that we would generate.
+
+    """
+    bhav_fieldnames = ('Instrument', 'Symbol', 'Expiry_Date', 'Strike_Price',
+                       'Option_Type', 'Open', 'High', 'Low', 'Close',
+                       'Settlement_Price', 'Contracts', 'Turnover_lakh', 'OI',
+                       'OI_Change', 'Date')
+    fut_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
+                      'Volume', 'OI')
+    return bhav_fieldnames, fut_fieldnames
+
+
 def _get_nse_indices_filenames(date):
     """Generates file names for bhavcopy csv file, vix csv file and the
      output csv file for NSE Indices.
@@ -573,6 +700,18 @@ def _get_nse_equities_filenames(date):
     eq_filename = r'NSE-EQ-{current_date}.csv'.format(
         current_date=date.strftime('%Y-%m-%d'))
     return bhav_filename, delv_filename, eq_filename
+
+
+def _get_nse_futures_filenames(date):
+    """Generates filenames for bhavcopy csv.zip file and the output csv
+    file for NSE Futures.
+
+    """
+    bhav_filename = r'fo{current_date}bhav.csv.zip'.format(
+        current_date=(date.strftime('%d%b%Y')).upper())
+    fut_filename = r'NSE-Futures-{current_date}.csv'.format(
+        current_date=date.strftime('%Y-%m-%d'))
+    return bhav_filename, fut_filename
 
 
 def _manipulate_nse_indices(input_data, output_data, input_date_format):
@@ -643,6 +782,46 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
             output_data.append(record)
+    return output_data
+
+
+def _manipulate_nse_futures(input_bhav, output_data):
+    """Manipulates input_bhav, appends it to output_data and returns
+    output_data at the end of the function.
+
+    The function takes two arguments:
+
+    : input_bhav  : a list each element of which is a dictionary
+    : output_data : a list each element of which is a dictionary
+
+    """
+    pos = 0
+    previous_symbol = None
+    future_suffix = ['-I', '-II', '-III', '-IV', '-V', '-VI', '-VII', '-VIII',
+                     '-IX', '-X', '-XI', '-XII', '-XIII', '-XIV', '-XV', '-XVI']
+
+    # Loop through input_bhav
+    for foo in input_bhav:
+        if foo['Instrument'] in ('FUTIDX', 'FUTIVX', 'FUTSTK'):
+            current_symbol = foo['Symbol']
+            record = foo.copy()
+            if current_symbol == previous_symbol:
+                pos += 1
+            else:
+                pos = 0
+            record['Symbol'] = record['Symbol'] + future_suffix[pos]
+            record['Volume'] = record['Contracts']
+            record['Date'] = datetime.datetime.strptime(
+                record['Date'], '%d-%b-%Y').date().isoformat()
+            record['Close'] = record['Settlement_Price']
+            if record['Close'] != '0' and (record['Open'] == '0' and
+                                           record['High'] == '0' and
+                                           record['Low'] == '0'):
+                record['Open'] = record['Close']
+                record['High'] = record['Close']
+                record['Low'] = record['Close']
+            output_data.append(record)
+            previous_symbol = current_symbol
     return output_data
 
 
@@ -780,7 +959,56 @@ def _output_nse_equities(date,
     os.remove(bhav_file)
 
 
+def _output_nse_futures(date,
+                        input_location=os.path.join(os.getcwd(), 'downloads'),
+                        output_location=os.path.join(os.getcwd(), 'processed_data')):
+    """Outputs the files for NSE Futures as csv.
+
+    """
+    bhav_filename, fut_filename = _get_nse_futures_filenames(date)
+
+    # Input files
+    bhav_file = os.path.join(input_location, bhav_filename)
+
+    # Where would we save the processed files
+    create_folder(output_location)
+    fno_file = os.path.join(output_location, fut_filename)
+
+    # Extract the bhav_file downloaded as zip and refer to extracted csv file
+    unzip(bhav_file)
+    bhav_file = os.path.join(os.getcwd(), os.path.splitext(bhav_filename)[0])
+
+    # Fieldnames present in files
+    bhav_fieldnames, fut_fieldnames = _get_nse_futures_fieldnames()
+
+    # The header line which we would write in the output file
+    fno_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI'
+
+    try:
+        # Read the bhav_file as a list, each element of which is a
+        # dictionary containing the record for a particular Symbol
+        bhav = list(csv.DictReader(open(bhav_file, 'r'),
+                                   delimiter=',',
+                                   fieldnames=bhav_fieldnames,
+                                   restkey='Skip',
+                                   restval='Skip'))
+    except FileNotFoundError:
+        # We could not find our main file. Nothing should be processed.
+        logger.error("{0}: File not found. Nothing is processed."
+                     "".format(bhav_file))
+        return
+    else:
+        data = []
+        _manipulate_nse_futures(input_bhav=bhav,
+                                output_data=data)
+        _pop_unnecessary_keys(data)
+        _format_output_data(data)
+        write_csv(fno_file, fno_header, fut_fieldnames, data)
+    os.remove(bhav_file)
+
+
 if __name__ == "__main__":
     # Toggle the debugging argument as necessary
-    process_nse_equities("2014-02-01", "2014-02-03", debugging=True)
-    process_nse_indices("2014-02-01", "2014-02-03", debugging=True)
+    process_nse_indices("2014-02-28", debugging=True)
+    process_nse_equities("2014-02-28", debugging=True)
+    process_nse_futures("2014-02-28", debugging=True)

@@ -12,13 +12,15 @@ Currently, the module provides support for the following Exchange/Segments:
 
 - NSE/Indices (India)
 - NSE/Equity (India)
+- NSE/Futures (India)
 
 This module provides the following user-facing functions:
 
 - :`process_nse_indices()`: download and process NSE Indices data to save as csv
 - :`process_nse_equities()`: download and process NSE Equity data to save as csv
+- :`process_nse_futures()`: download and process NSE Futures data to save as csv
 - :`download_file()`: download the files off internet
-- :`to_datetime_date()` : return datetime.date object where possible else None
+- :`to_datetime_date()`: return datetime.date object where possible else None
 - :`ensure_trailing_slash()`: ensure a trailing slash at the end of the string
 - :`create_folder()`: create the folder in a safe manner
 - :`get_request_headers()`: return "request headers" dict for download_file()
@@ -32,14 +34,19 @@ and defines the following private functions:
 - `_format_output_data()`
 - `_download_nse_indices()`
 - `_download_nse_equities()`
+- `_download_nse_futures()`
 - `_get_nse_indices_fieldnames()`
 - `_get_nse_equities_fieldnames()`
+- `_get_nse_futures_fieldnames()`
 - `_get_nse_indices_filenames()`
 - `_get_nse_equities_filenames()`
+- `_get_nse_futures_filenames()`
 - `_manipulate_nse_indices()`
 - `_manipulate_nse_equities()`
+- `_manipulate_nse_futures()`
 - `_output_nse_indices()`
 - `_output_nse_equities()`
+- `_output_nse_futures()`
 
 
 How To Use This Module
@@ -50,9 +57,10 @@ How To Use This Module
 
        import trader
 
-2. The user is expected to primarily make use of ``process_nse_indices()`` and
-   ``process_nse_equities()`` functions. Just pass the required arguments to
-   them to download and process the data for required Exchange/Segments.
+2. The user is expected to primarily make use of ``process_nse_indices()``,
+   ``process_nse_equities()`` and ``process_nse_futures()`` functions. Just
+   pass the required arguments to them to download and process the data for
+   required Exchange/Segments.
 
 3. ``download_file()`` function can be used to download anything off the
    internet.
