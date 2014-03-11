@@ -30,6 +30,7 @@ This module provides the following user-facing functions:
 and defines the following private functions:
 
 - `_convert_dash_to_zero()`
+- `_sanitize_ohlc()`
 - `_pop_unnecessary_keys()`
 - `_format_output_data()`
 - `_download_nse_indices()`

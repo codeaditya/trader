@@ -47,6 +47,7 @@ This module provides the following user-facing functions:
 and defines the following private functions:
 
 - `_convert_dash_to_zero()`
+- `_sanitize_ohlc()`
 - `_pop_unnecessary_keys()`
 - `_format_output_data()`
 - `_download_nse_indices()`
@@ -513,6 +514,20 @@ def _convert_dash_to_zero(data):
             data[element] = '0'
 
 
+def _sanitize_ohlc(input_dict):
+    """Takes a dictionary and modifies the values of Open, High and Low
+    to be the value of Close; when the values of all of them is equal to
+    zero.
+
+    """
+    if input_dict['Close'] != '0' and (input_dict['Open'] == '0' and
+                                       input_dict['High'] == '0' and
+                                       input_dict['Low'] == '0'):
+        input_dict['Open'] = input_dict['Close']
+        input_dict['High'] = input_dict['Close']
+        input_dict['Low'] = input_dict['Close']
+
+
 def _pop_unnecessary_keys(data):
     """Takes a list containing each element as a dictionary and removes
     unnecessary keys for final output.
@@ -751,6 +766,7 @@ def _manipulate_nse_indices(input_data, output_data, input_date_format):
             # This is raised because of the header line
             continue
         _convert_dash_to_zero(record)
+        _sanitize_ohlc(record)
         output_data.append(record)
     return output_data
 
@@ -790,6 +806,7 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
         if record:
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
+            _sanitize_ohlc(record)   # Not generally required for NSE Equities
             output_data.append(record)
     return output_data
 
@@ -823,12 +840,7 @@ def _manipulate_nse_futures(input_bhav, output_data):
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
             record['Close'] = record['Settlement_Price']
-            if record['Close'] != '0' and (record['Open'] == '0' and
-                                           record['High'] == '0' and
-                                           record['Low'] == '0'):
-                record['Open'] = record['Close']
-                record['High'] = record['Close']
-                record['Low'] = record['Close']
+            _sanitize_ohlc(record)
             output_data.append(record)
             previous_symbol = current_symbol
     return output_data
