@@ -17,71 +17,104 @@ Copyright 2013, 2014 Aditya <code.aditya@gmail.com>
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
-trader.py is a Python 3 module which provides functions to download and process
-the data for Stock Markets.
+**trader** is a Python 3 module which provides functions to download and
+process the data for Stock Markets.
 
-This is expected to be used as a back-end module for a GUI which utilizes the
-work of this module. However, users are free to find their own creative uses.
+This is expected to be used as a back-end module for a GUI which
+utilizes the work of this module. However, users are free to find their
+own creative uses.
 
-Currently, the module provides support for the following Exchange/Segments:
+
+Exchange/Segments Supported
+---------------------------
 
 - NSE/Indices (India)
-- NSE/Equity (India)
+- NSE/Equities (India)
 - NSE/Futures (India)
 
-This module provides the following user-facing functions:
 
-- :`process_nse_indices()`: download and process NSE Indices data to save as csv
-- :`process_nse_equities()`: download and process NSE Equity data to save as csv
-- :`process_nse_futures()`: download and process NSE Futures data to save as csv
-- :`download_file()`: download the files off internet
-- :`to_datetime_date()`: return datetime.date object where possible else None
-- :`ensure_trailing_slash()`: ensure a trailing slash at the end of the string
-- :`create_folder()`: create the folder in a safe manner
-- :`get_request_headers()`: return "request headers" dict for download_file()
-- :`unzip()`: extract the contents of zip in present working directory
-- :`write_csv()`: generate and save the file given necessary arguments
+Functions Available
+-------------------
 
-and defines the following private functions:
+Public Functions
+++++++++++++++++
 
-- `_convert_dash_to_zero()`
-- `_sanitize_ohlc()`
-- `_pop_unnecessary_keys()`
-- `_format_output_data()`
-- `_download_nse_indices()`
-- `_download_nse_equities()`
-- `_download_nse_futures()`
-- `_get_nse_indices_fieldnames()`
-- `_get_nse_equities_fieldnames()`
-- `_get_nse_futures_fieldnames()`
-- `_get_nse_indices_filenames()`
-- `_get_nse_equities_filenames()`
-- `_get_nse_futures_filenames()`
-- `_manipulate_nse_indices()`
-- `_manipulate_nse_equities()`
-- `_manipulate_nse_futures()`
-- `_output_nse_indices()`
-- `_output_nse_equities()`
-- `_output_nse_futures()`
+This module provides the following public functions:
+
+``process_nse_indices()``:
+    download and process NSE Indices data to save as csv
+``process_nse_equities()``:
+    download and process NSE Equities data to save as csv
+``process_nse_futures()``:
+    download and process NSE Futures data to save as csv
+``download_file()``:
+    download the files off internet
+``to_datetime_date()``:
+    return datetime.date object where possible else None
+``ensure_trailing_slash()``:
+    ensure trailing path separator at the end of the string
+``create_folder()``:
+    create the folder in a safe manner
+``get_request_headers()``:
+    return "request headers" dict for `download_file()`
+``unzip()``:
+    extract the contents of zip file in present working directory
+``write_csv()``:
+    generate and save the file given necessary arguments
+
+Private Functions
++++++++++++++++++
+
+See the docstrings of individual private functions for details:
+
+- ``_convert_dash_to_zero()``
+- ``_sanitize_ohlc()``
+- ``_pop_unnecessary_keys()``
+- ``_format_output_data()``
+
+- ``_download_nse_indices()``
+- ``_download_nse_equities()``
+- ``_download_nse_futures()``
+
+- ``_get_nse_indices_fieldnames()``
+- ``_get_nse_equities_fieldnames()``
+- ``_get_nse_futures_fieldnames()``
+
+- ``_get_nse_indices_filenames()``
+- ``_get_nse_equities_filenames()``
+- ``_get_nse_futures_filenames()``
+
+- ``_manipulate_nse_indices()``
+- ``_manipulate_nse_equities()``
+- ``_manipulate_nse_futures()``
+
+- ``_output_nse_indices()``
+- ``_output_nse_equities()``
+- ``_output_nse_futures()``
 
 
 How To Use This Module
 ----------------------
-(See the docstrings of individual functions for details)
 
 1. Import the module using:
 
-       import trader
+       ``import trader``
 
-2. The user is expected to primarily make use of ``process_nse_indices()``,
-   ``process_nse_equities()`` and ``process_nse_futures()`` functions. Just
-   pass the required arguments to them to download and process the data for
-   required Exchange/Segments.
+2. The user is expected to primarily make use of the following functions:
+
+   - ``process_nse_indices()``
+   - ``process_nse_equities()``
+   - ``process_nse_futures()``
+
+   Just pass the required arguments to them to download and process the
+   data for required Exchange/Segments.
 
 3. ``download_file()`` function can be used to download anything off the
    internet.
+
+------------------------------------------------------------------------
 
 """
 
@@ -120,44 +153,46 @@ def process_nse_indices(start_date,
                         debugging=False):
     """Processes the data for NSE Indices.
 
-    The function takes six arguments:
-     : start_date        : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-01".
-                           This refers the date from when the files
-                           should be downloaded.
-     : end_date          : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-31".
-                           This refers the date upto which the files
-                           should be downloaded.
-     : download_location : Where to save the downloaded files.
-                           Used to pass as download_location argument to
-                           `_download_nse_indices()` and input_location
-                           argument to `_output_nse_indices()`.
-     : output_location   : Where to save the processed output files.
-                           Used to pass as output_location argument to
-                           `_output_nse_indices()`.
-     : ignore_weekend    : This takes boolean values ie; either True or
-                           False. When set as True, it doesn't attempt
-                           to download the data for Saturdays and
-                           Sundays. Set its value as False if any trades
-                           happen on a Saturday or a Sunday. This would
-                           be specially useful in case of Muhurat
-                           Trading.
-     : debugging         : This takes boolean values and doesn't attempt
-                           to download anything when set to True.
-                           Used to pass the argument to
-                           `_download_nse_indices()`.
+    :param start_date: date from when the files should be downloaded
+    :param end_date: date upto which the files should be downloaded
+    :param download_location: where to save the downloaded files
+    :param output_location: where to save the processed output files
+    :param ignore_weekend: when set as True, it doesn't attempt to
+                           process the data for Saturdays and Sundays
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type start_date: datetime.datetime or datetime.date or str
+    :type end_date: None or datetime.datetime or datetime.date or str
+    :type download_location: str
+    :type output_location: str
+    :type ignore_weekend: bool
+    :type debugging: bool
+
+    When passing `start_date` and `end_date` arguments as str, it should
+    be in the form of "YYYY-MM-DD" like "2014-01-01".
+
+    `download_location` is used to pass as `download_location` argument
+    to `_download_nse_indices()` and `input_location` argument to
+    `_output_nse_indices()`.
+
+    `output_location` is used to pass as `output_location` argument to
+    `_output_nse_indices()`.
+
+    Pass `ignore_weekend` as False if any trades happen on a Saturday or
+    a Sunday. This would be specially useful in case of Muhurat Trading.
+
+    `debugging` is used to pass as argument to `_download_nse_indices()`.
 
     Examples:
-    >>>process_nse_indices("2014-01-01")
-    >>>process_nse_indices("2014-01-01", "2014-01-01")
-    >>>process_nse_indices("2014-01-01", "2014-01-31")
-    >>>process_nse_indices(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
-    >>>process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False)
-    >>>process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-    >>>process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+
+        >>> process_nse_indices("2014-01-01")
+        >>> process_nse_indices("2014-01-01", "2014-01-01")
+        >>> process_nse_indices("2014-01-01", "2014-01-31")
+        >>> process_nse_indices(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
+        >>> process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False)
+        >>> process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
+        >>> process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
     logger.info("Processing NSE Indices...")
@@ -198,44 +233,46 @@ def process_nse_equities(start_date,
                          debugging=False):
     """Processes the data for NSE Equities.
 
-    The function takes six arguments:
-     : start_date        : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-01".
-                           This refers the date from when the files
-                           should be downloaded.
-     : end_date          : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-31".
-                           This refers the date upto which the files
-                           should be downloaded.
-     : download_location : Where to save the downloaded files.
-                           Used to pass as download_location argument to
-                           `_download_nse_equities()` and input_location
-                           argument to `_output_nse_equities()`.
-     : output_location   : Where to save the processed output files.
-                           Used to pass as output_location argument to
-                           `_output_nse_equities()`.
-     : ignore_weekend    : This takes boolean values ie; either True or
-                           False. When set as True, it doesn't attempt
-                           to download the data for Saturdays and
-                           Sundays. Set its value as False if any trades
-                           happen on a Saturday or a Sunday. This would
-                           be specially useful in case of Muhurat
-                           Trading.
-     : debugging         : This takes boolean values and doesn't attempt
-                           to download anything when set to True.
-                           Used to pass the argument to
-                           `_download_nse_equities()`.
+    :param start_date: date from when the files should be downloaded
+    :param end_date: date upto which the files should be downloaded
+    :param download_location: where to save the downloaded files
+    :param output_location: where to save the processed output files
+    :param ignore_weekend: when set as True, it doesn't attempt to
+                           process the data for Saturdays and Sundays
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type start_date: datetime.datetime or datetime.date or str
+    :type end_date: None or datetime.datetime or datetime.date or str
+    :type download_location: str
+    :type output_location: str
+    :type ignore_weekend: bool
+    :type debugging: bool
+
+    When passing `start_date` and `end_date` arguments as str, it should
+    be in the form of "YYYY-MM-DD" like "2014-01-01".
+
+    `download_location` is used to pass as `download_location` argument
+    to `_download_nse_equities()` and `input_location` argument to
+    `_output_nse_equities()`.
+
+    `output_location` is used to pass as `output_location` argument to
+    `_output_nse_equities()`.
+
+    Pass `ignore_weekend` as False if any trades happen on a Saturday or
+    a Sunday. This would be specially useful in case of Muhurat Trading.
+
+    `debugging` is used to pass as argument to `_download_nse_equities()`.
 
     Examples:
-    >>>process_nse_equities("2014-01-01")
-    >>>process_nse_equities("2014-01-01", "2014-01-01")
-    >>>process_nse_equities("2014-01-01", "2014-01-31")
-    >>>process_nse_equities(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
-    >>>process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False)
-    >>>process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-    >>>process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+
+        >>> process_nse_equities("2014-01-01")
+        >>> process_nse_equities("2014-01-01", "2014-01-01")
+        >>> process_nse_equities("2014-01-01", "2014-01-31")
+        >>> process_nse_equities(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
+        >>> process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False)
+        >>> process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
+        >>> process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
     logger.info("Processing NSE Equities...")
@@ -276,44 +313,46 @@ def process_nse_futures(start_date,
                         debugging=False):
     """Processes the data for NSE Futures.
 
-    The function takes six arguments:
-     : start_date        : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-01".
-                           This refers the date from when the files
-                           should be downloaded.
-     : end_date          : Accepts date of type datetime.datetime,
-                           datetime.date and str in the form of
-                           "YYYY-MM-DD" like "2014-01-31".
-                           This refers the date upto which the files
-                           should be downloaded.
-     : download_location : Where to save the downloaded files.
-                           Used to pass as download_location argument to
-                           `_download_nse_futures()` and input_location
-                           argument to `_output_nse_futures()`.
-     : output_location   : Where to save the processed output files.
-                           Used to pass as output_location argument to
-                           `_output_nse_futures()`.
-     : ignore_weekend    : This takes boolean values ie; either True or
-                           False. When set as True, it doesn't attempt
-                           to download the data for Saturdays and
-                           Sundays. Set its value as False if any trades
-                           happen on a Saturday or a Sunday. This would
-                           be specially useful in case of Muhurat
-                           Trading.
-     : debugging         : This takes boolean values and doesn't attempt
-                           to download anything when set to True.
-                           Used to pass the argument to
-                           `_download_nse_futures()`.
+    :param start_date: date from when the files should be downloaded
+    :param end_date: date upto which the files should be downloaded
+    :param download_location: where to save the downloaded files
+    :param output_location: where to save the processed output files
+    :param ignore_weekend: when set as True, it doesn't attempt to
+                           process the data for Saturdays and Sundays
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type start_date: datetime.datetime or datetime.date or str
+    :type end_date: None or datetime.datetime or datetime.date or str
+    :type download_location: str
+    :type output_location: str
+    :type ignore_weekend: bool
+    :type debugging: bool
+
+    When passing `start_date` and `end_date` arguments as str, it should
+    be in the form of "YYYY-MM-DD" like "2014-01-01".
+
+    `download_location` is used to pass as `download_location` argument
+    to `_download_nse_futures()` and `input_location` argument to
+    `_output_nse_futures()`.
+
+    `output_location` is used to pass as `output_location` argument to
+    `_output_nse_futures()`.
+
+    Pass `ignore_weekend` as False if any trades happen on a Saturday or
+    a Sunday. This would be specially useful in case of Muhurat Trading.
+
+    `debugging` is used to pass as argument to `_download_nse_futures()`.
 
     Examples:
-    >>>process_nse_futures("2014-01-01")
-    >>>process_nse_futures("2014-01-01", "2014-01-01")
-    >>>process_nse_futures("2014-01-01", "2014-01-31")
-    >>>process_nse_futures(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
-    >>>process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False)
-    >>>process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-    >>>process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+
+        >>> process_nse_futures("2014-01-01")
+        >>> process_nse_futures("2014-01-01", "2014-01-01")
+        >>> process_nse_futures("2014-01-01", "2014-01-31")
+        >>> process_nse_futures(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
+        >>> process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False)
+        >>> process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
+        >>> process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
 
     """
     logger.info("Processing NSE Futures...")
@@ -349,35 +388,38 @@ def download_file(*urls,
                   debugging=False):
     """Downloads the files provided as multiple url arguments.
 
-    Provide the url for files to be downloaded as strings. Separate the
-    files to be downloaded by a comma.
+    :param urls: the url for files to be downloaded, separated by commas
+    :param download_location: where to save the downloaded files
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type urls: str
+    :type download_location: str
+    :type debugging: bool
 
     The function would download the files and save it in the folder
-    provided as keyword-argument for download_location. If
-    download_location is not provided, then the file would be saved in
+    provided as keyword-argument for `download_location`. If
+    `download_location` is not provided, then the file would be saved in
     directory called as "downloads" created in the current working
-    directory. Folder for download_location would be created if it
-    doesn't already exist. Do not worry about trailing slash at the end
-    for download_location. The code would take carry of it for you.
+    directory. Folder for `download_location` would be created if it
+    doesn't already exist.
 
     If the download encounters an error it would alert about it and
-    provide the information about the Error Code and Error Reason (if
-    received from the server).
-
-    Normal Usage:
-    >>> download_file('http://localhost/index.html', 'http://localhost/info.php')
-    >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test')
-    >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test/')
+    provide the information about the Error Code and Error Reason where
+    possible.
 
     In Debug Mode, files are not downloaded, neither there is any
     attempt to establish the connection with the server. It just prints
     out the filename and its url that would have been attempted to be
     downloaded in Normal Mode.
 
-    By Default, Debug Mode is inactive. In order to activate it, we
-    need to supply a keyword-argument as 'debugging=True', like:
-    >>> download_file('http://localhost/index.html', debugging=True)
-    >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test', debugging=True)
+    Examples:
+
+        >>> download_file('http://localhost/index.html', 'http://localhost/info.php')
+        >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test')
+        >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test/')
+        >>> download_file('http://localhost/index.html', debugging=True)
+        >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test', debugging=True)
 
     """
     # Some initialization stuff
@@ -423,9 +465,16 @@ def download_file(*urls,
 
 
 def to_datetime_date(input_date):
-    """Checks the type of input_date and returns a datetime.date object
-    where possible, else returns None. If input_date is a string not in
-    format of '%Y-%m-%d' like 2013-12-31, it would raise ValueError.
+    """Checks the type of `input_date` and returns a datetime.date
+    object where possible, else returns None.
+
+    :param input_date: date to be converted to datetime.date object
+    :type input_date: datetime.datetime or datetime.date or str
+
+    :rtype: datetime.date or None
+
+    :raises: ValueError when `input_date` is provided as str not in
+             format of "%Y-%m-%d"
 
     """
     date = None
@@ -439,7 +488,18 @@ def to_datetime_date(input_date):
 
 
 def ensure_trailing_slash(input_string):
-    """Ensures that there is a trailing slash at the end of the string.
+    """Ensures that there is a trailing path separator depending on the
+    Operating System at the end of the string.
+
+    :param input_string: the location of the folder
+    :type input_string: str
+
+    :rtype: str
+
+    The trailing path separator is:
+
+    - ``/`` in case of Unix and Mac.
+    - ``\`` in case of Windows.
 
     """
     if not input_string.endswith(os.sep):
@@ -449,6 +509,9 @@ def ensure_trailing_slash(input_string):
 
 def create_folder(folder):
     """Creates the folder, no problem if the folder already exists.
+
+    :param folder: the location to be created
+    :type folder: str
 
     """
     ensure_trailing_slash(folder)
@@ -464,7 +527,9 @@ def create_folder(folder):
 
 
 def get_request_headers():
-    """Returns 'Request Headers' information as a dictionary.
+    """Returns "Request Headers" information as a dictionary.
+
+    :rtype: dict
 
     """
     accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
@@ -484,6 +549,9 @@ def get_request_headers():
 def unzip(input_zipfile):
     """Unzips all the contents of the file in present working directory.
 
+    :param input_zipfile: the file to be extracted
+    :type input_zipfile: str
+
     """
     try:
         with zipfile.ZipFile(input_zipfile, 'r') as input_file:
@@ -497,6 +565,17 @@ def unzip(input_zipfile):
 def write_csv(output_file, header, fieldnames, output_data):
     """Outputs the processed data to a file for final consumption.
 
+    :param output_file: the file to be generated
+    :param header: the header line to be written to `output_file`
+    :param fieldnames: fieldnames present in each element of
+                       `output_data`
+    :param output_data: the data to be written
+
+    :type output_file: str
+    :type header: tuple
+    :type fieldnames: tuple
+    :type output_data: list containing each element as a dict
+
     """
     with open(output_file, 'w', newline='') as file:
         csv.writer(file, delimiter=',').writerow(header)
@@ -505,8 +584,11 @@ def write_csv(output_file, header, fieldnames, output_data):
 
 
 def _convert_dash_to_zero(data):
-    """Takes a dictionary and if any of the values is '-', it converts
-    it to '0'.
+    """Takes a dictionary and if any of the values is "-", it converts
+    it to "0".
+
+    :param data: dictionary of record
+    :type data: dict
 
     """
     for element in data:
@@ -518,6 +600,9 @@ def _sanitize_ohlc(input_dict):
     """Takes a dictionary and modifies the values of Open, High and Low
     to be the value of Close; when the values of all of them is equal to
     zero.
+
+    :param input_dict: dictionary of record to be sanitized
+    :type input_dict: dict
 
     """
     if input_dict['Close'] != '0' and (input_dict['Open'] == '0' and
@@ -531,6 +616,9 @@ def _sanitize_ohlc(input_dict):
 def _pop_unnecessary_keys(data):
     """Takes a list containing each element as a dictionary and removes
     unnecessary keys for final output.
+
+    :param data: list of output data
+    :type data: list containing each element as a dict
 
     """
     unnecessary_keys = ['Change', 'Change_pct', 'Turnover', 'PE', 'PB', 'ISIN',
@@ -546,6 +634,9 @@ def _pop_unnecessary_keys(data):
 def _format_output_data(data):
     """Takes a list containing each element as a dictionary and formats
     the keys for final output.
+
+    :param data: list of output data
+    :type data: list containing each element as a dict
 
     """
     strip_spaces = ['Symbol', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI']
@@ -565,16 +656,21 @@ def _download_nse_indices(date,
                           debugging=False):
     """Downloads the files for NSE Indices.
 
-    The function takes one of the arguments as date which is a
-    datetime.date object passed by `process_nse_indices()` function.
-    So, this function ie; `_download_nse_indices()` is not intended to
-    be used on a standalone basis.
+    :param date: date for which files to be downloaded
+    :param download_location: where to save the downloaded files
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type date: datetime.date
+    :type download_location: str
+    :type debugging: bool
 
     The files downloaded are:
-    : Bhavcopy File : This is the main file which contains most of the
-                      required data.
-    : Vix File      : This contains the data for INDIAVIX Index. Data
-                      for INDIAVIX is not present in the Bhavcopy File.
+
+    - **Bhavcopy File:** This is the main file which contains most of
+      the required data.
+    - **Vix File:** This contains the data for INDIAVIX Index. Data for
+      INDIAVIX is not present in the Bhavcopy File.
 
     """
     # Generate download URLs
@@ -595,18 +691,22 @@ def _download_nse_equities(date,
                            debugging=False):
     """Downloads the files for NSE Equities.
 
-    The function takes one of the arguments as date which is a
-    datetime.date object passed by `process_nse_equities()` function.
-    So, this function ie; `_download_nse_equities()` is not intended to
-    be used on a standalone basis.
+    :param date: date for which files to be downloaded
+    :param download_location: where to save the downloaded files
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type date: datetime.date
+    :type download_location: str
+    :type debugging: bool
 
     The files downloaded are:
-    : Bhavcopy File : This is the main file which contains most of the
-                      required data.
-    : Delivery File : This file is downloaded because it contains the
-                      data for Deliverable Quantity ie; how much
-                      quantity was traded for Delivery ie;
-                      (Total Volume - Intraday Volume).
+
+    - **Bhavcopy File:** This is the main file which contains most of
+      the required data.
+    - **Delivery File:** This file is downloaded because it contains the
+      data for Deliverable Quantity ie; how much quantity was traded for
+      Delivery ie; (Total Volume - Intraday Volume).
 
     The Deliverable Quantity data would be inserted into Open Interest
     field in the `_output_nse_equities()` function.
@@ -632,14 +732,19 @@ def _download_nse_futures(date,
                           debugging=False):
     """Downloads the files for NSE Futures.
 
-    The function takes one of the arguments as date which is a
-    datetime.date object passed by `process_nse_futures()` function.
-    So, this function ie; `_download_nse_futures()` is not intended to
-    be used on a standalone basis.
+    :param date: date for which files to be downloaded
+    :param download_location: where to save the downloaded files
+    :param debugging: when set as True, it doesn't attempt to download
+                      anything
+
+    :type date: datetime.date
+    :type download_location: str
+    :type debugging: bool
 
     The files downloaded are:
-    : Bhavcopy File : This is the main file which contains most of the
-                      required data.
+
+    - **Bhavcopy File:** This is the main file which contains most of
+      the required data.
 
     """
     # Generate download URLs
@@ -658,10 +763,12 @@ def _get_nse_indices_fieldnames():
     """Returns the fieldnames present in bhavcopy file, vix file and the
     output file for NSE Indices that we would generate.
 
+    :rtype: tuple of tuples
+
     """
     bhav_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
-                       'Change', 'Change_pct', 'Volume', 'Turnover',
-                       'PE', 'PB', 'Div_yield')
+                       'Change', 'Change_pct', 'Volume', 'Turnover', 'PE',
+                       'PB', 'Div_yield')
     vix_fieldnames = ('Date', 'Open', 'High', 'Low', 'Close', 'Prev_Close',
                       'Change', 'Change_pct')
     ind_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
@@ -672,6 +779,8 @@ def _get_nse_indices_fieldnames():
 def _get_nse_equities_fieldnames():
     """Returns the fieldnames present in bhavcopy file, delivery file
     and the output file for NSE Equities that we would generate.
+
+    :rtype: tuple of tuples
 
     """
     bhav_fieldnames = ('Symbol', 'Series', 'Open', 'High', 'Low', 'Close',
@@ -688,6 +797,8 @@ def _get_nse_futures_fieldnames():
     """Returns the fieldnames present in bhavcopy file and the output
     file for NSE Futures that we would generate.
 
+    :rtype: tuple of tuples
+
     """
     bhav_fieldnames = ('Instrument', 'Symbol', 'Expiry_Date', 'Strike_Price',
                        'Option_Type', 'Open', 'High', 'Low', 'Close',
@@ -699,8 +810,13 @@ def _get_nse_futures_fieldnames():
 
 
 def _get_nse_indices_filenames(date):
-    """Generates file names for bhavcopy csv file, vix csv file and the
-     output csv file for NSE Indices.
+    """Generates filenames for bhavcopy csv file, vix csv file and the
+    output csv file for NSE Indices.
+
+    :param date: date for which filenames are required
+    :type date: datetime.date
+
+    :rtype: tuple of str
 
     """
     bhav_filename = r'ind_close_all_{current_date}.csv'.format(
@@ -716,6 +832,11 @@ def _get_nse_equities_filenames(date):
     """Generates filenames for bhavcopy csv.zip file, delivery DAT file
     and the output csv file for NSE Equities.
 
+    :param date: date for which filenames are required
+    :type date: datetime.date
+
+    :rtype: tuple of str
+
     """
     bhav_filename = r'cm{current_date}bhav.csv.zip'.format(
         current_date=(date.strftime('%d%b%Y')).upper())
@@ -730,6 +851,11 @@ def _get_nse_futures_filenames(date):
     """Generates filenames for bhavcopy csv.zip file and the output csv
     file for NSE Futures.
 
+    :param date: date for which filenames are required
+    :type date: datetime.date
+
+    :rtype: tuple of str
+
     """
     bhav_filename = r'fo{current_date}bhav.csv.zip'.format(
         current_date=(date.strftime('%d%b%Y')).upper())
@@ -739,16 +865,23 @@ def _get_nse_futures_filenames(date):
 
 
 def _manipulate_nse_indices(input_data, output_data, input_date_format):
-    """Manipulates input_data, appends it to output_data and returns
-    output_data at the end of the function.
+    """Manipulates the data for NSE Indices.
 
-    The function takes three arguments:
+    :param input_data: data to be manipulated
+    :param output_data: data after manipulation
+    :param input_date_format: represents the format of date as present
+                              in `input_data` according to
+                              datetime.datetime specifications.
 
-    : input_data        : a list each element of which is a dictionary
-    : output_data       : a list each element of which is a dictionary
-    : input_date_format : a string which represents the format of date
-                          as present in input_data according to
-                          datetime.datetime specifications.
+    :type input_data: list containing each element as a dict
+    :type output_data: list containing each element as a dict
+    :type input_date_format: str
+
+    :returns: `output_data`
+    :rtype: list containing each element as a dict
+
+    The function takes `input_data`, manipulates and appends it to
+    `output_data` and returns `output_data` at the end.
 
     """
     for foo in input_data:
@@ -772,14 +905,21 @@ def _manipulate_nse_indices(input_data, output_data, input_date_format):
 
 
 def _manipulate_nse_equities(input_bhav, input_delv, output_data):
-    """Manipulates input_bhav and input_delv, appends it to output_data
-    and returns output_data at the end of the function.
+    """Manipulates the data for NSE Equities.
 
-    The function takes three arguments:
+    :param input_bhav: primary data to be manipulated
+    :param input_delv: contains OI data for each record
+    :param output_data: data after manipulation
 
-    : input_bhav  : a list each element of which is a dictionary
-    : input_delv  : None or a list each element of which is a dictionary
-    : output_data : a list each element of which is a dictionary
+    :type input_bhav: list containing each element as a dict
+    :type input_delv: None or list containing each element as a dict
+    :type output_data: list containing each element as a dict
+
+    :returns: `output_data`
+    :rtype: list containing each element as a dict
+
+    The function takes `input_bhav` and `input_delv`, manipulates them
+    and append it to `output_data` and returns `output_data` at the end.
 
     """
     # Generate a dictionary with key as (Symbol, Series) tuple and
@@ -803,7 +943,7 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
                 record['OI'] = '0'
             else:
                 record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']))
-        if record:
+        if record is not None:
             record['Date'] = datetime.datetime.strptime(
                 record['Date'], '%d-%b-%Y').date().isoformat()
             _sanitize_ohlc(record)   # Not generally required for NSE Equities
@@ -812,13 +952,19 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
 
 
 def _manipulate_nse_futures(input_bhav, output_data):
-    """Manipulates input_bhav, appends it to output_data and returns
-    output_data at the end of the function.
+    """Manipulates the data for NSE Futures.
 
-    The function takes two arguments:
+    :param input_bhav: data to be manipulated
+    :param output_data: data after manipulation
 
-    : input_bhav  : a list each element of which is a dictionary
-    : output_data : a list each element of which is a dictionary
+    :type input_bhav: list containing each element as a dict
+    :type output_data: list containing each element as a dict
+
+    :returns: `output_data`
+    :rtype: list containing each element as a dict
+
+    The function takes `input_bhav`, manipulates and appends it to
+    `output_data` and returns `output_data` at the end.
 
     """
     pos = 0
@@ -852,6 +998,14 @@ def _output_nse_indices(date,
                         output_location=os.path.join(os.getcwd(),
                                                      'processed_data')):
     """Outputs the files for NSE Indices as csv.
+
+    :param date: date for which files to be processed
+    :param input_location: where are the files to be processed
+    :param output_location: where to save the processed output files
+
+    :type date: datetime.date
+    :type input_location: str
+    :type output_location: str
 
     """
     bhav_filename, vix_filename, ind_filename = _get_nse_indices_filenames(date)
@@ -917,6 +1071,14 @@ def _output_nse_equities(date,
                          output_location=os.path.join(os.getcwd(),
                                                       'processed_data')):
     """Outputs the files for NSE Equities as csv.
+
+    :param date: date for which files to be processed
+    :param input_location: where are the files to be processed
+    :param output_location: where to save the processed output files
+
+    :type date: datetime.date
+    :type input_location: str
+    :type output_location: str
 
     """
     bhav_filename, delv_filename, eq_filename = _get_nse_equities_filenames(date)
@@ -990,6 +1152,14 @@ def _output_nse_futures(date,
                         output_location=os.path.join(os.getcwd(),
                                                      'processed_data')):
     """Outputs the files for NSE Futures as csv.
+
+    :param date: date for which files to be processed
+    :param input_location: where are the files to be processed
+    :param output_location: where to save the processed output files
+
+    :type date: datetime.date
+    :type input_location: str
+    :type output_location: str
 
     """
     bhav_filename, fut_filename = _get_nse_futures_filenames(date)
