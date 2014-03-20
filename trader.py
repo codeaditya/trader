@@ -53,8 +53,6 @@ This module provides the following public functions:
     download the files off internet
 ``to_datetime_date()``:
     return datetime.date object where possible else None
-``ensure_trailing_slash()``:
-    ensure trailing path separator at the end of the string
 ``create_folder()``:
     create the folder in a safe manner
 ``get_request_headers()``:
@@ -423,7 +421,6 @@ def download_file(*urls,
 
     """
     # Some initialization stuff
-    download_location = ensure_trailing_slash(download_location)
     create_folder(download_location)
     headers = get_request_headers()
 
@@ -487,26 +484,6 @@ def to_datetime_date(input_date):
     return date
 
 
-def ensure_trailing_slash(input_string):
-    """Ensures that there is a trailing path separator depending on the
-    Operating System at the end of the string.
-
-    :param input_string: the location of the folder
-    :type input_string: str
-
-    :rtype: str
-
-    The trailing path separator is:
-
-    - ``/`` in case of Unix and Mac.
-    - ``\`` in case of Windows.
-
-    """
-    if not input_string.endswith(os.sep):
-        input_string = os.path.join(input_string, '')
-    return input_string
-
-
 def create_folder(folder):
     """Creates the folder, no problem if the folder already exists.
 
@@ -514,7 +491,6 @@ def create_folder(folder):
     :type folder: str
 
     """
-    ensure_trailing_slash(folder)
     try:
         os.makedirs(folder, exist_ok=True)
         logger.debug("{0} folder exists. Ready to process further."

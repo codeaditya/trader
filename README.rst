@@ -36,8 +36,6 @@ This module provides the following public functions:
     download the files off internet
 ``to_datetime_date()``:
     return datetime.date object where possible else None
-``ensure_trailing_slash()``:
-    ensure trailing path separator at the end of the string
 ``create_folder()``:
     create the folder in a safe manner
 ``get_request_headers()``:
