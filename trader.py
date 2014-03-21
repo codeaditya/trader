@@ -581,12 +581,10 @@ def _sanitize_ohlc(input_dict):
     :type input_dict: dict
 
     """
-    if input_dict['Close'] != '0' and (input_dict['Open'] == '0' and
-                                       input_dict['High'] == '0' and
-                                       input_dict['Low'] == '0'):
-        input_dict['Open'] = input_dict['Close']
-        input_dict['High'] = input_dict['Close']
-        input_dict['Low'] = input_dict['Close']
+    keys = ['Open', 'High', 'Low']
+    if input_dict['Close'] != '0' and all(input_dict[x] == '0' for x in keys):
+        for field in keys:
+            input_dict[field] = input_dict['Close']
 
 
 def _pop_unnecessary_keys(data):
