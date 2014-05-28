@@ -76,12 +76,19 @@ See the docstrings of individual private functions for details:
 - ``_output_nse_futures()``
 
 
+Global Variables
+----------------
+
+- ``DEBUGGING = False``
+    When it is ``True``, no attempt is made to download the files.
+
+
 How To Use This Module
 ----------------------
 
 1. Import the module using:
 
-       ``import trader``
+       import trader
 
 2. The user is expected to primarily make use of the following functions:
 
@@ -124,7 +131,7 @@ Principal Author And Maintainer
 License
 -------
 
-trader is an Open Source Project released under `GNU General Public
+**trader** is an Open Source Project released under `GNU General Public
 License v3`_ (or any later version).
 
 .. _GNU General Public License v3: https://www.gnu.org/licenses/gpl.html

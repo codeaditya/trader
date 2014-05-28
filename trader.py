@@ -93,12 +93,19 @@ See the docstrings of individual private functions for details:
 - ``_output_nse_futures()``
 
 
+Global Variables
+----------------
+
+- ``DEBUGGING = False``
+    When it is ``True``, no attempt is made to download the files
+
+
 How To Use This Module
 ----------------------
 
 1. Import the module using:
 
-       ``import trader``
+       import trader
 
 2. The user is expected to primarily make use of the following functions:
 
@@ -140,6 +147,12 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 ###############################################################################
 
+###############################################################################
+#### Other Global Variables ###################################################
+# When DEBUGGING is set as True, it doesn't attempt to download anything
+DEBUGGING = False
+###############################################################################
+
 
 def process_nse_indices(start_date,
                         end_date=None,
@@ -147,8 +160,7 @@ def process_nse_indices(start_date,
                                                        'downloads'),
                         output_location=os.path.join(os.getcwd(),
                                                      'processed_data'),
-                        ignore_weekend=True,
-                        debugging=False):
+                        ignore_weekend=True):
     """Processes the data for NSE Indices.
 
     :param start_date: date from when the files should be downloaded
@@ -157,15 +169,12 @@ def process_nse_indices(start_date,
     :param output_location: where to save the processed output files
     :param ignore_weekend: when set as True, it doesn't attempt to
                            process the data for Saturdays and Sundays
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type start_date: datetime.datetime or datetime.date or str
     :type end_date: None or datetime.datetime or datetime.date or str
     :type download_location: str
     :type output_location: str
     :type ignore_weekend: bool
-    :type debugging: bool
 
     When passing `start_date` and `end_date` arguments as str, it should
     be in the form of "YYYY-MM-DD" like "2014-01-01".
@@ -180,8 +189,6 @@ def process_nse_indices(start_date,
     Pass `ignore_weekend` as False if any trades happen on a Saturday or
     a Sunday. This would be specially useful in case of Muhurat Trading.
 
-    `debugging` is used to pass as argument to `_download_nse_indices()`.
-
     Examples:
 
         >>> process_nse_indices("2014-01-01")
@@ -189,8 +196,7 @@ def process_nse_indices(start_date,
         >>> process_nse_indices("2014-01-01", "2014-01-31")
         >>> process_nse_indices(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
         >>> process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False)
-        >>> process_nse_indices("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-        >>> process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+        >>> process_nse_indices("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd())
 
     """
     logger.info("Processing NSE Indices...")
@@ -213,8 +219,7 @@ def process_nse_indices(start_date,
             current_date += time_delta
             continue
         _download_nse_indices(current_date,
-                              download_location=download_location,
-                              debugging=debugging)
+                              download_location=download_location)
         _output_nse_indices(current_date,
                             input_location=download_location,
                             output_location=output_location)
@@ -227,8 +232,7 @@ def process_nse_equities(start_date,
                                                         'downloads'),
                          output_location=os.path.join(os.getcwd(),
                                                       'processed_data'),
-                         ignore_weekend=True,
-                         debugging=False):
+                         ignore_weekend=True):
     """Processes the data for NSE Equities.
 
     :param start_date: date from when the files should be downloaded
@@ -237,15 +241,12 @@ def process_nse_equities(start_date,
     :param output_location: where to save the processed output files
     :param ignore_weekend: when set as True, it doesn't attempt to
                            process the data for Saturdays and Sundays
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type start_date: datetime.datetime or datetime.date or str
     :type end_date: None or datetime.datetime or datetime.date or str
     :type download_location: str
     :type output_location: str
     :type ignore_weekend: bool
-    :type debugging: bool
 
     When passing `start_date` and `end_date` arguments as str, it should
     be in the form of "YYYY-MM-DD" like "2014-01-01".
@@ -260,8 +261,6 @@ def process_nse_equities(start_date,
     Pass `ignore_weekend` as False if any trades happen on a Saturday or
     a Sunday. This would be specially useful in case of Muhurat Trading.
 
-    `debugging` is used to pass as argument to `_download_nse_equities()`.
-
     Examples:
 
         >>> process_nse_equities("2014-01-01")
@@ -269,8 +268,7 @@ def process_nse_equities(start_date,
         >>> process_nse_equities("2014-01-01", "2014-01-31")
         >>> process_nse_equities(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
         >>> process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False)
-        >>> process_nse_equities("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-        >>> process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+        >>> process_nse_equities("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd())
 
     """
     logger.info("Processing NSE Equities...")
@@ -293,8 +291,7 @@ def process_nse_equities(start_date,
             current_date += time_delta
             continue
         _download_nse_equities(current_date,
-                               download_location=download_location,
-                               debugging=debugging)
+                               download_location=download_location)
         _output_nse_equities(current_date,
                              input_location=download_location,
                              output_location=output_location)
@@ -307,8 +304,7 @@ def process_nse_futures(start_date,
                                                        'downloads'),
                         output_location=os.path.join(os.getcwd(),
                                                      'processed_data'),
-                        ignore_weekend=True,
-                        debugging=False):
+                        ignore_weekend=True):
     """Processes the data for NSE Futures.
 
     :param start_date: date from when the files should be downloaded
@@ -317,15 +313,12 @@ def process_nse_futures(start_date,
     :param output_location: where to save the processed output files
     :param ignore_weekend: when set as True, it doesn't attempt to
                            process the data for Saturdays and Sundays
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type start_date: datetime.datetime or datetime.date or str
     :type end_date: None or datetime.datetime or datetime.date or str
     :type download_location: str
     :type output_location: str
     :type ignore_weekend: bool
-    :type debugging: bool
 
     When passing `start_date` and `end_date` arguments as str, it should
     be in the form of "YYYY-MM-DD" like "2014-01-01".
@@ -340,8 +333,6 @@ def process_nse_futures(start_date,
     Pass `ignore_weekend` as False if any trades happen on a Saturday or
     a Sunday. This would be specially useful in case of Muhurat Trading.
 
-    `debugging` is used to pass as argument to `_download_nse_futures()`.
-
     Examples:
 
         >>> process_nse_futures("2014-01-01")
@@ -349,8 +340,7 @@ def process_nse_futures(start_date,
         >>> process_nse_futures("2014-01-01", "2014-01-31")
         >>> process_nse_futures(datetime.datetime(2014,1,1), datetime.date(2014,1,1))
         >>> process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False)
-        >>> process_nse_futures("2014-01-01", "2014-01-31", ignore_weekend=False, debugging=True)
-        >>> process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd(), debugging=True)
+        >>> process_nse_futures("2014-01-01", "2014-01-31", download_location=os.getcwd(), output_location=os.getcwd())
 
     """
     logger.info("Processing NSE Futures...")
@@ -373,8 +363,7 @@ def process_nse_futures(start_date,
             current_date += time_delta
             continue
         _download_nse_futures(current_date,
-                              download_location=download_location,
-                              debugging=debugging)
+                              download_location=download_location)
         _output_nse_futures(current_date,
                             input_location=download_location,
                             output_location=output_location)
@@ -382,18 +371,14 @@ def process_nse_futures(start_date,
 
 
 def download_file(*urls,
-                  download_location=os.path.join(os.getcwd(), 'downloads'),
-                  debugging=False):
+                  download_location=os.path.join(os.getcwd(), 'downloads')):
     """Downloads the files provided as multiple url arguments.
 
     :param urls: the url for files to be downloaded, separated by commas
     :param download_location: where to save the downloaded files
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type urls: str
     :type download_location: str
-    :type debugging: bool
 
     The function would download the files and save it in the folder
     provided as keyword-argument for `download_location`. If
@@ -406,6 +391,8 @@ def download_file(*urls,
     provide the information about the Error Code and Error Reason where
     possible.
 
+    It uses `DEBUGGING` global variable to activate the Debug Mode.
+
     In Debug Mode, files are not downloaded, neither there is any
     attempt to establish the connection with the server. It just prints
     out the filename and its url that would have been attempted to be
@@ -416,8 +403,6 @@ def download_file(*urls,
         >>> download_file('http://localhost/index.html', 'http://localhost/info.php')
         >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test')
         >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test/')
-        >>> download_file('http://localhost/index.html', debugging=True)
-        >>> download_file('http://localhost/index.html', download_location='/home/aditya/Download/test', debugging=True)
 
     """
     # Some initialization stuff
@@ -427,7 +412,7 @@ def download_file(*urls,
     # Loop through all the files to be downloaded
     for url in urls:
         filename = os.path.basename(url)
-        if not debugging:
+        if not DEBUGGING:
             logger.info("Downloading {0}.".format(url))
             try:
                 request_sent = urllib.request.Request(url, headers=headers)
@@ -457,8 +442,8 @@ def download_file(*urls,
                     downloaded_file.write(read_response)
                 logger.info("{0}: Downloaded successfully.".format(filename))
         else:
-            logger.debug("DEBUGGING: {0} would be downloaded from {1}."
-                         "".format(filename, url))
+            logger.info("DEBUG MODE: {0} would be downloaded from {1}."
+                        "".format(filename, url))
 
 
 def to_datetime_date(input_date):
@@ -626,18 +611,14 @@ def _format_output_data(data):
 
 def _download_nse_indices(date,
                           download_location=os.path.join(os.getcwd(),
-                                                         'downloads'),
-                          debugging=False):
+                                                         'downloads')):
     """Downloads the files for NSE Indices.
 
     :param date: date for which files to be downloaded
     :param download_location: where to save the downloaded files
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type date: datetime.date
     :type download_location: str
-    :type debugging: bool
 
     The files downloaded are:
 
@@ -654,25 +635,19 @@ def _download_nse_indices(date,
         full_date=date.strftime('%d-%b-%Y'))
 
     # Download the files
-    download_file(bhavcopy, vix,
-                  download_location=download_location,
-                  debugging=debugging)
+    download_file(bhavcopy, vix, download_location=download_location)
 
 
 def _download_nse_equities(date,
                            download_location=os.path.join(os.getcwd(),
-                                                          'downloads'),
-                           debugging=False):
+                                                          'downloads')):
     """Downloads the files for NSE Equities.
 
     :param date: date for which files to be downloaded
     :param download_location: where to save the downloaded files
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type date: datetime.date
     :type download_location: str
-    :type debugging: bool
 
     The files downloaded are:
 
@@ -695,25 +670,19 @@ def _download_nse_equities(date,
         full_date=date.strftime('%d%m%Y'))
 
     # Download the files
-    download_file(bhavcopy, delivery,
-                  download_location=download_location,
-                  debugging=debugging)
+    download_file(bhavcopy, delivery, download_location=download_location)
 
 
 def _download_nse_futures(date,
                           download_location=os.path.join(os.getcwd(),
-                                                         'downloads'),
-                          debugging=False):
+                                                         'downloads')):
     """Downloads the files for NSE Futures.
 
     :param date: date for which files to be downloaded
     :param download_location: where to save the downloaded files
-    :param debugging: when set as True, it doesn't attempt to download
-                      anything
 
     :type date: datetime.date
     :type download_location: str
-    :type debugging: bool
 
     The files downloaded are:
 
@@ -728,9 +697,7 @@ def _download_nse_futures(date,
         date=date.strftime('%d'))
 
     # Download the files
-    download_file(bhavcopy,
-                  download_location=download_location,
-                  debugging=debugging)
+    download_file(bhavcopy, download_location=download_location)
 
 
 def _get_nse_indices_fieldnames():
@@ -1180,7 +1147,7 @@ def _output_nse_futures(date,
 
 
 if __name__ == "__main__":
-    # Toggle the debugging argument as necessary
-    process_nse_indices("2014-02-28", debugging=True)
-    process_nse_equities("2014-02-28", debugging=True)
-    process_nse_futures("2014-02-28", debugging=True)
+    # DEBUGGING = True
+    process_nse_indices("2014-05-28")
+    process_nse_equities("2014-05-28")
+    process_nse_futures("2014-05-28")
