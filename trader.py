@@ -51,6 +51,8 @@ This module provides the following public functions:
     download and process NSE Futures data to save as csv
 ``download_file()``:
     download the files off internet
+``apply_server_timestamp()``:
+    apply the last-modified timestamp to files as received from headers
 ``to_datetime_date()``:
     return datetime.date object where possible else None
 ``create_folder()``:
@@ -391,6 +393,8 @@ def download_file(*urls,
     provide the information about the Error Code and Error Reason where
     possible.
 
+    It preserves the Last Modification time as received from the server.
+
     It uses `DEBUGGING` global variable to activate the Debug Mode.
 
     In Debug Mode, files are not downloaded, neither there is any
@@ -440,10 +444,29 @@ def download_file(*urls,
                                                     16 + zlib.MAX_WBITS)
                 with open(output_file, 'wb') as downloaded_file:
                     downloaded_file.write(read_response)
+                last_modified = response_received.headers.get('Last-Modified')
+                apply_server_timestamp(output_file, last_modified)
                 logger.info("{0}: Downloaded successfully.".format(filename))
         else:
             logger.info("DEBUG MODE: {0} would be downloaded from {1}."
                         "".format(filename, url))
+
+
+def apply_server_timestamp(output_file, last_modified):
+    """Changes the last modified and last access time of the output file
+    to the one as received from Last-Modified response header.
+
+    :param output_file: the file whose timestamp is to be altered
+    :param last_modified: time string as received from Response headers
+
+    :type output_file: str
+    :type last_modified: str
+    """
+    server_datetime = datetime.datetime.strptime(last_modified,
+                                                 "%a, %d %b %Y %H:%M:%S GMT")
+    server_utc_time = server_datetime.replace(tzinfo=datetime.timezone.utc)
+    server_timestamp = server_utc_time.timestamp()
+    os.utime(output_file, times=(server_timestamp, server_timestamp))
 
 
 def to_datetime_date(input_date):

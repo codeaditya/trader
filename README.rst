@@ -34,6 +34,8 @@ This module provides the following public functions:
     download and process NSE Futures data to save as csv
 ``download_file()``:
     download the files off internet
+``apply_server_timestamp()``:
+    apply the last-modified timestamp to files as received from headers
 ``to_datetime_date()``:
     return datetime.date object where possible else None
 ``create_folder()``:
