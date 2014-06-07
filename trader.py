@@ -655,10 +655,14 @@ def _download_nse_indices(date,
 
     """
     # Generate download URLs
+    bhavcopy, vix = None, None
     bhavcopy = r'http://www.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
-    vix = r'http://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
-        full_date=date.strftime('%d-%b-%Y'))
+    # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
+    # itself, so no need to download it separately
+    if date < datetime.date(2014, 5, 14):
+        vix = r'http://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
+            full_date=date.strftime('%d-%b-%Y'))
 
     # Download the files
     download_file(bhavcopy, vix, download_location=download_location)
@@ -1009,23 +1013,26 @@ def _output_nse_indices(date,
         _manipulate_nse_indices(input_data=bhav,
                                 output_data=data,
                                 input_date_format='%d-%m-%Y')
-    try:
-        # Read the bhav_file as a list, each element of which is a
-        # dictionary containing the record for a particular Symbol
-        vix = list(csv.DictReader(open(vix_file, 'r'),
-                                  delimiter=',',
-                                  fieldnames=vix_fieldnames,
-                                  restkey='Skip',
-                                  restval='Skip'))
-    except FileNotFoundError:
-        # We could not find our vix file.
-        logger.error("{0}: File not found.".format(vix_file))
-    else:
-        if data is None:
-            data = []
-        _manipulate_nse_indices(input_data=vix,
-                                output_data=data,
-                                input_date_format='%d-%b-%Y')
+    # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
+    # itself, so no need to read it separately
+    if date < datetime.date(2014, 5, 14):
+        try:
+            # Read the vix_file as a list, each element of which is a
+            # dictionary containing the record for a particular Symbol
+            vix = list(csv.DictReader(open(vix_file, 'r'),
+                                      delimiter=',',
+                                      fieldnames=vix_fieldnames,
+                                      restkey='Skip',
+                                      restval='Skip'))
+        except FileNotFoundError:
+            # We could not find our vix file.
+            logger.error("{0}: File not found.".format(vix_file))
+        else:
+            if data is None:
+                data = []
+            _manipulate_nse_indices(input_data=vix,
+                                    output_data=data,
+                                    input_date_format='%d-%b-%Y')
     if data is not None:
         _pop_unnecessary_keys(data)
         _format_output_data(data)
