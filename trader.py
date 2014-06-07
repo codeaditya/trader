@@ -415,6 +415,9 @@ def download_file(*urls,
 
     # Loop through all the files to be downloaded
     for url in urls:
+        if not url:
+            logger.debug("None url: Nothing to download.")
+            return
         filename = os.path.basename(url)
         if not DEBUGGING:
             logger.info("Downloading {0}.".format(url))
