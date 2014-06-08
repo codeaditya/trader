@@ -996,7 +996,7 @@ def _output_nse_indices(date,
     ind_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', \
                  'OI'
 
-    data = None
+    output_data = []
     try:
         # Read the bhav_file as a list, each element of which is a
         # dictionary containing the record for a particular Symbol
@@ -1009,9 +1009,8 @@ def _output_nse_indices(date,
         # We could not find our indices file.
         logger.error("{0}: File not found.".format(bhav_file))
     else:
-        data = []
         _manipulate_nse_indices(input_data=bhav,
-                                output_data=data,
+                                output_data=output_data,
                                 input_date_format='%d-%m-%Y')
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to read it separately
@@ -1028,15 +1027,13 @@ def _output_nse_indices(date,
             # We could not find our vix file.
             logger.error("{0}: File not found.".format(vix_file))
         else:
-            if data is None:
-                data = []
             _manipulate_nse_indices(input_data=vix,
-                                    output_data=data,
+                                    output_data=output_data,
                                     input_date_format='%d-%b-%Y')
-    if data is not None:
-        _pop_unnecessary_keys(data)
-        _format_output_data(data)
-        write_csv(ind_file, ind_header, ind_fieldnames, data)
+    if len(output_data) > 0:
+        _pop_unnecessary_keys(output_data)
+        _format_output_data(output_data)
+        write_csv(ind_file, ind_header, ind_fieldnames, output_data)
 
 
 def _output_nse_equities(date,
