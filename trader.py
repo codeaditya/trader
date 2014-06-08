@@ -1086,7 +1086,7 @@ def _output_nse_equities(date,
                      "".format(bhav_file))
         return
     else:
-        data = []
+        output_data = []
         try:
             # Read the delv_file as a list, each element of which is a
             # dictionary containing the record for a particular Symbol
@@ -1102,18 +1102,18 @@ def _output_nse_equities(date,
             # We only want 'EQ'/'BE' Series data.
             _manipulate_nse_equities(input_bhav=bhav,
                                      input_delv=None,
-                                     output_data=data)
+                                     output_data=output_data)
         else:
             logger.debug("Both the files found - bhavcopy and delivery data.")
             # We only want 'EQ'/'BE' Series data. Also obtain the value
             # of OI for 'EQ' Series from delv
             _manipulate_nse_equities(input_bhav=bhav,
                                      input_delv=delv,
-                                     output_data=data)
+                                     output_data=output_data)
         finally:
-            _pop_unnecessary_keys(data)
-            _format_output_data(data)
-            write_csv(eq_file, eq_header, eq_fieldnames, data)
+            _pop_unnecessary_keys(output_data)
+            _format_output_data(output_data)
+            write_csv(eq_file, eq_header, eq_fieldnames, output_data)
     os.remove(bhav_file)
 
 
