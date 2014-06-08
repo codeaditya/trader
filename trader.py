@@ -1167,12 +1167,12 @@ def _output_nse_futures(date,
                      "".format(bhav_file))
         return
     else:
-        data = []
+        output_data = []
         _manipulate_nse_futures(input_bhav=bhav,
-                                output_data=data)
-        _pop_unnecessary_keys(data)
-        _format_output_data(data)
-        write_csv(fut_file, fut_header, fut_fieldnames, data)
+                                output_data=output_data)
+        _pop_unnecessary_keys(output_data)
+        _format_output_data(output_data)
+        write_csv(fut_file, fut_header, fut_fieldnames, output_data)
     os.remove(bhav_file)
 
 
