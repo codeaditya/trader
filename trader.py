@@ -904,6 +904,15 @@ def _manipulate_nse_indices(input_data, output_data, input_date_format):
         record['OI'] = '0'
         if 'Symbol' in record:
             record['Symbol'] = record['Symbol'].upper().replace(" ", "")
+            try:
+                # Turnover is in Rs. Crore, convert it to Rs. Lakh and
+                # use it as Volume which is more useful than sum of
+                # volume of all the scrips in case of Indices
+                volume = float(record['Turnover']) * 100
+                record['Volume'] = "{0:.0f}".format(volume)
+            except ValueError:
+                # This is raised because of the header line
+                pass
         else:
             record['Symbol'] = 'INDIAVIX'
             record['Volume'] = '0'
