@@ -74,6 +74,7 @@ See the docstrings of individual private functions for details:
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
 - ``_format_output_data()``
+- ``_finalize_output()``
 
 - ``_download_nse_indices()``
 - ``_download_nse_equities()``
@@ -663,6 +664,21 @@ def _format_output_data(data):
             element[key] = "{0:.2f}".format(float(element[key]))
 
 
+def _finalize_output(data):
+    """Takes a list containing each element as a dictionary and
+    finalizes it for final consumption.
+
+    :param data: list of output data
+    :type data: list containing each element as a dict
+
+    """
+    if len(data) < 1:
+        logger.warning("No data available.")
+        return
+    _pop_unnecessary_keys(data)
+    _format_output_data(data)
+
+
 def _download_nse_indices(date,
                           download_location=os.path.join(os.getcwd(),
                                                          'downloads')):
@@ -1138,10 +1154,8 @@ def _output_nse_indices(date,
                            input_fieldnames=vix_fieldnames,
                            output_data=output_data,
                            input_date_format='%d-%b-%Y')
-    if len(output_data) > 0:
-        _pop_unnecessary_keys(output_data)
-        _format_output_data(output_data)
-        write_csv(ind_file, ind_header, ind_fieldnames, output_data)
+    _finalize_output(output_data)
+    write_csv(ind_file, ind_header, ind_fieldnames, output_data)
 
 
 def _output_nse_equities(date,
@@ -1186,10 +1200,8 @@ def _output_nse_equities(date,
                         input_delv_file=delv_file,
                         input_delv_fieldnames=delv_fieldnames,
                         output_data=output_data)
-    if len(output_data) > 0:
-        _pop_unnecessary_keys(output_data)
-        _format_output_data(output_data)
-        write_csv(eq_file, eq_header, eq_fieldnames, output_data)
+    _finalize_output(output_data)
+    write_csv(eq_file, eq_header, eq_fieldnames, output_data)
     if os.path.exists(bhav_file):
         os.remove(bhav_file)
 
@@ -1234,10 +1246,8 @@ def _output_nse_futures(date,
     _parse_nse_futures(input_file=bhav_file,
                        input_fieldnames=bhav_fieldnames,
                        output_data=output_data)
-    if len(output_data) > 0:
-        _pop_unnecessary_keys(output_data)
-        _format_output_data(output_data)
-        write_csv(fut_file, fut_header, fut_fieldnames, output_data)
+    _finalize_output(output_data)
+    write_csv(fut_file, fut_header, fut_fieldnames, output_data)
     if os.path.exists(bhav_file):
         os.remove(bhav_file)
 

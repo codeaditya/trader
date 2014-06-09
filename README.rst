@@ -57,6 +57,7 @@ See the docstrings of individual private functions for details:
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
 - ``_format_output_data()``
+- ``_finalize_output()``
 
 - ``_download_nse_indices()``
 - ``_download_nse_equities()``
