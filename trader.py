@@ -69,6 +69,7 @@ Private Functions
 
 See the docstrings of individual private functions for details:
 
+- ``_read_input_as_list()``
 - ``_convert_dash_to_zero()``
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
@@ -89,6 +90,10 @@ See the docstrings of individual private functions for details:
 - ``_manipulate_nse_indices()``
 - ``_manipulate_nse_equities()``
 - ``_manipulate_nse_futures()``
+
+- ``_parse_nse_indices()``
+- ``_parse_nse_equities()``
+- ``_parse_nse_futures()``
 
 - ``_output_nse_indices()``
 - ``_output_nse_equities()``
@@ -570,6 +575,29 @@ def write_csv(output_file, header, fieldnames, output_data):
     logger.info("{0}: File generated.".format(output_file))
 
 
+def _read_input_as_list(input_file, input_fieldnames):
+    """Reads the input_file and returns a list, each element of which is
+    a dictionary containing the record for a particular Symbol.
+
+    :param input_file: file to be read
+    :param input_fieldnames: fieldnames present in `input_file`
+
+    :type input_file: str
+    :type input_fieldnames: tuple
+
+    :returns: data read with csv.DictReader
+    :rtype: list containing each element as a dict
+
+    """
+    with open(input_file, 'r') as file:
+        input_data = list(csv.DictReader(file,
+                                         delimiter=',',
+                                         fieldnames=input_fieldnames,
+                                         restkey='Skip',
+                                         restval='Skip'))
+    return input_data
+
+
 def _convert_dash_to_zero(data):
     """Takes a dictionary and if any of the values is "-", it converts
     it to "0".
@@ -963,6 +991,108 @@ def _manipulate_nse_futures(input_bhav, output_data):
     return output_data
 
 
+def _parse_nse_indices(input_file, input_fieldnames, output_data,
+                       input_date_format):
+    """Parses the input file for NSE Indices.
+
+    :param input_file: location of the input file
+    :param input_fieldnames: fieldnames present in `input_file`
+    :param output_data: list to append the parsed data for output
+    :param input_date_format: represents the format of date as present
+                              in `input_file` according to
+                              datetime.datetime specifications.
+
+    :type input_file: str
+    :type input_fieldnames: tuple
+    :type output_data: list
+    :type input_date_format: str
+
+    The function reads the `input_file` and manipulates them to return
+    the `output_data`.
+
+    """
+    try:
+        input_data = _read_input_as_list(input_file, input_fieldnames)
+    except FileNotFoundError:
+        logger.error("{0}: File not found.".format(input_file))
+    else:
+        _manipulate_nse_indices(input_data=input_data,
+                                output_data=output_data,
+                                input_date_format=input_date_format)
+
+
+def _parse_nse_equities(input_bhav_file, input_bhav_fieldnames,
+                        input_delv_file, input_delv_fieldnames,
+                        output_data):
+    """Parses the input files for NSE Equities.
+
+    :param input_bhav_file: location of the input bhavcopy file
+    :param input_bhav_fieldnames: fieldnames present in `input_bhav_file`
+    :param input_delv_file: location of the input delivery file
+    :param input_delv_fieldnames: fieldnames present in `input_delv_file`
+    :param output_data: list to append the parsed data for output
+
+    :type input_bhav_file: str
+    :type input_bhav_fieldnames: tuple
+    :type input_delv_file: str
+    :type input_delv_fieldnames: tuple
+    :type output_data: list
+
+    The function reads the input files and manipulates them to return
+    the `output_data`.
+
+    """
+    bhav_data, delv_data = None, None
+    try:
+        bhav_data = _read_input_as_list(input_bhav_file, input_bhav_fieldnames)
+        delv_data = _read_input_as_list(input_delv_file, input_delv_fieldnames)
+    except FileNotFoundError:
+        if not bhav_data:
+            logger.error("{0}: File not found. Nothing is processed."
+                         "".format(input_bhav_file))
+            return
+        if not delv_data:
+            # We could not find the Delivery File. Okay, at least
+            # process the Bhav file with OI data for 'EQ' Series as 0
+            logger.warning("{0}: File not found. Delivery data is not being "
+                           "processed.".format(input_delv_file))
+            # We only want 'EQ'/'BE' Series data.
+            _manipulate_nse_equities(input_bhav=bhav_data,
+                                     input_delv=None,
+                                     output_data=output_data)
+    else:
+        logger.debug("Both the files found - bhavcopy and delivery data.")
+        # We only want 'EQ'/'BE' Series data. Also obtain the value of
+        # OI for 'EQ' Series from delv
+        _manipulate_nse_equities(input_bhav=bhav_data,
+                                 input_delv=delv_data,
+                                 output_data=output_data)
+
+
+def _parse_nse_futures(input_file, input_fieldnames, output_data):
+    """Parses the input file for NSE Futures.
+
+    :param input_file: location of the input file
+    :param input_fieldnames: fieldnames present in `input_file`
+    :param output_data: list to append the parsed data for output
+
+    :type input_file: str
+    :type input_fieldnames: tuple
+    :type output_data: list
+
+    The function reads the `input_file` and manipulates them to return
+    the `output_data`.
+
+    """
+    try:
+        input_data = _read_input_as_list(input_file, input_fieldnames)
+    except FileNotFoundError:
+        logger.error("{0}: File not found.".format(input_file))
+    else:
+        _manipulate_nse_futures(input_bhav=input_data,
+                                output_data=output_data)
+
+
 def _output_nse_indices(date,
                         input_location=os.path.join(os.getcwd(),
                                                     'downloads'),
@@ -997,39 +1127,17 @@ def _output_nse_indices(date,
                  'OI'
 
     output_data = []
-    try:
-        # Read the bhav_file as a list, each element of which is a
-        # dictionary containing the record for a particular Symbol
-        bhav = list(csv.DictReader(open(bhav_file, 'r'),
-                                   delimiter=',',
-                                   fieldnames=bhav_fieldnames,
-                                   restkey='Skip',
-                                   restval='Skip'))
-    except FileNotFoundError:
-        # We could not find our indices file.
-        logger.error("{0}: File not found.".format(bhav_file))
-    else:
-        _manipulate_nse_indices(input_data=bhav,
-                                output_data=output_data,
-                                input_date_format='%d-%m-%Y')
+    _parse_nse_indices(input_file=bhav_file,
+                       input_fieldnames=bhav_fieldnames,
+                       output_data=output_data,
+                       input_date_format='%d-%m-%Y')
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to read it separately
     if date < datetime.date(2014, 5, 14):
-        try:
-            # Read the vix_file as a list, each element of which is a
-            # dictionary containing the record for a particular Symbol
-            vix = list(csv.DictReader(open(vix_file, 'r'),
-                                      delimiter=',',
-                                      fieldnames=vix_fieldnames,
-                                      restkey='Skip',
-                                      restval='Skip'))
-        except FileNotFoundError:
-            # We could not find our vix file.
-            logger.error("{0}: File not found.".format(vix_file))
-        else:
-            _manipulate_nse_indices(input_data=vix,
-                                    output_data=output_data,
-                                    input_date_format='%d-%b-%Y')
+        _parse_nse_indices(input_file=vix_file,
+                           input_fieldnames=vix_fieldnames,
+                           output_data=output_data,
+                           input_date_format='%d-%b-%Y')
     if len(output_data) > 0:
         _pop_unnecessary_keys(output_data)
         _format_output_data(output_data)
@@ -1072,49 +1180,18 @@ def _output_nse_equities(date,
     # The header line which we would write in the output file
     eq_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI'
 
-    try:
-        # Read the bhav_file as a list, each element of which is a
-        # dictionary containing the record for a particular Symbol
-        bhav = list(csv.DictReader(open(bhav_file, 'r'),
-                                   delimiter=',',
-                                   fieldnames=bhav_fieldnames,
-                                   restkey='Skip',
-                                   restval='Skip'))
-    except FileNotFoundError:
-        # We could not find our main file. Nothing should be processed.
-        logger.error("{0}: File not found. Nothing is processed."
-                     "".format(bhav_file))
-        return
-    else:
-        output_data = []
-        try:
-            # Read the delv_file as a list, each element of which is a
-            # dictionary containing the record for a particular Symbol
-            delv = list(csv.DictReader(open(delv_file, 'r'),
-                                       delimiter=',',
-                                       fieldnames=delv_fieldnames,
-                                       restval='Skip'))
-        except FileNotFoundError:
-            # We could not find the Delivery File. Okay, at least
-            # process the Bhav file with OI data for 'EQ' Series as 0
-            logger.warning("{0}: File not found. Delivery data is not being "
-                           "processed.".format(delv_file))
-            # We only want 'EQ'/'BE' Series data.
-            _manipulate_nse_equities(input_bhav=bhav,
-                                     input_delv=None,
-                                     output_data=output_data)
-        else:
-            logger.debug("Both the files found - bhavcopy and delivery data.")
-            # We only want 'EQ'/'BE' Series data. Also obtain the value
-            # of OI for 'EQ' Series from delv
-            _manipulate_nse_equities(input_bhav=bhav,
-                                     input_delv=delv,
-                                     output_data=output_data)
-        finally:
-            _pop_unnecessary_keys(output_data)
-            _format_output_data(output_data)
-            write_csv(eq_file, eq_header, eq_fieldnames, output_data)
-    os.remove(bhav_file)
+    output_data = []
+    _parse_nse_equities(input_bhav_file=bhav_file,
+                        input_bhav_fieldnames=bhav_fieldnames,
+                        input_delv_file=delv_file,
+                        input_delv_fieldnames=delv_fieldnames,
+                        output_data=output_data)
+    if len(output_data) > 0:
+        _pop_unnecessary_keys(output_data)
+        _format_output_data(output_data)
+        write_csv(eq_file, eq_header, eq_fieldnames, output_data)
+    if os.path.exists(bhav_file):
+        os.remove(bhav_file)
 
 
 def _output_nse_futures(date,
@@ -1153,27 +1230,16 @@ def _output_nse_futures(date,
     fut_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', \
                  'OI'
 
-    try:
-        # Read the bhav_file as a list, each element of which is a
-        # dictionary containing the record for a particular Symbol
-        bhav = list(csv.DictReader(open(bhav_file, 'r'),
-                                   delimiter=',',
-                                   fieldnames=bhav_fieldnames,
-                                   restkey='Skip',
-                                   restval='Skip'))
-    except FileNotFoundError:
-        # We could not find our main file. Nothing should be processed.
-        logger.error("{0}: File not found. Nothing is processed."
-                     "".format(bhav_file))
-        return
-    else:
-        output_data = []
-        _manipulate_nse_futures(input_bhav=bhav,
-                                output_data=output_data)
+    output_data = []
+    _parse_nse_futures(input_file=bhav_file,
+                       input_fieldnames=bhav_fieldnames,
+                       output_data=output_data)
+    if len(output_data) > 0:
         _pop_unnecessary_keys(output_data)
         _format_output_data(output_data)
         write_csv(fut_file, fut_header, fut_fieldnames, output_data)
-    os.remove(bhav_file)
+    if os.path.exists(bhav_file):
+        os.remove(bhav_file)
 
 
 if __name__ == "__main__":

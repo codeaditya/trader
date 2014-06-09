@@ -52,6 +52,7 @@ Private Functions
 
 See the docstrings of individual private functions for details:
 
+- ``_read_input_as_list()``
 - ``_convert_dash_to_zero()``
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
@@ -72,6 +73,10 @@ See the docstrings of individual private functions for details:
 - ``_manipulate_nse_indices()``
 - ``_manipulate_nse_equities()``
 - ``_manipulate_nse_futures()``
+
+- ``_parse_nse_indices()``
+- ``_parse_nse_equities()``
+- ``_parse_nse_futures()``
 
 - ``_output_nse_indices()``
 - ``_output_nse_equities()``
