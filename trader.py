@@ -570,6 +570,8 @@ def write_csv(output_file, header, fieldnames, output_data):
     :type output_data: list containing each element as a dict
 
     """
+    if len(output_data) < 1:
+        return
     with open(output_file, 'w', newline='') as file:
         csv.writer(file, delimiter=',').writerow(header)
         csv.DictWriter(file, fieldnames, delimiter=',').writerows(output_data)
