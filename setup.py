@@ -11,6 +11,9 @@ setup(name='trader',
       license='GNU General Public License v3 (or any later version)',
       description='Download and process data for Stock Markets',
       long_description='Download and process data for Stock Markets',
+      install_requires=[
+          'python-dateutil',
+      ],
       platforms='all',
       classifiers=[
           'Development Status :: 4 - Beta',
@@ -23,7 +26,8 @@ setup(name='trader',
           'Programming Language :: Python',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
           'Topic :: Office/Business',
-          'Topic :: Software Development :: Libraries :: Python Modules'
-          ],
-      )
+          'Topic :: Software Development :: Libraries :: Python Modules',
+      ],
+)

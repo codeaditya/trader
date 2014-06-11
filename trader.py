@@ -132,6 +132,7 @@ How To Use This Module
 
 """
 
+# Import Standard modules
 import csv
 import datetime
 import logging
@@ -140,6 +141,9 @@ import urllib.error
 import urllib.request
 import zipfile
 import zlib
+
+# Import Third-party modules
+from dateutil.parser import parse
 
 ###############################################################################
 #### Add logging functionality ################################################
@@ -895,18 +899,14 @@ def _get_nse_futures_filenames(date):
     return bhav_filename, fut_filename
 
 
-def _manipulate_nse_indices(input_data, output_data, input_date_format):
+def _manipulate_nse_indices(input_data, output_data):
     """Manipulates the data for NSE Indices.
 
     :param input_data: data to be manipulated
     :param output_data: data after manipulation
-    :param input_date_format: represents the format of date as present
-                              in `input_data` according to
-                              datetime.datetime specifications.
 
     :type input_data: list containing each element as a dict
     :type output_data: list containing each element as a dict
-    :type input_date_format: str
 
     :returns: `output_data`
     :rtype: list containing each element as a dict
@@ -933,9 +933,9 @@ def _manipulate_nse_indices(input_data, output_data, input_date_format):
             record['Symbol'] = 'INDIAVIX'
             record['Volume'] = '0'
         try:
-            record['Date'] = datetime.datetime.strptime(
-                record['Date'], input_date_format).date().isoformat()
-        except ValueError:
+            date_str = record.get('Date')
+            record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
+        except TypeError:
             # This is raised because of the header line
             continue
         _convert_dash_to_zero(record)
@@ -985,8 +985,8 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
             else:
                 record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']))
         if record is not None:
-            record['Date'] = datetime.datetime.strptime(
-                record['Date'], '%d-%b-%Y').date().isoformat()
+            date_str = record.get('Date')
+            record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
             _sanitize_ohlc(record)   # Not generally required for NSE Equities
             output_data.append(record)
     return output_data
@@ -1024,8 +1024,8 @@ def _manipulate_nse_futures(input_bhav, output_data):
                 pos = 0
             record['Symbol'] = record['Symbol'] + future_suffix[pos]
             record['Volume'] = record['Contracts']
-            record['Date'] = datetime.datetime.strptime(
-                record['Date'], '%d-%b-%Y').date().isoformat()
+            date_str = record.get('Date')
+            record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
             record['Close'] = record['Settlement_Price']
             _sanitize_ohlc(record)
             output_data.append(record)
@@ -1033,21 +1033,16 @@ def _manipulate_nse_futures(input_bhav, output_data):
     return output_data
 
 
-def _parse_nse_indices(input_file, input_fieldnames, output_data,
-                       input_date_format):
+def _parse_nse_indices(input_file, input_fieldnames, output_data):
     """Parses the input file for NSE Indices.
 
     :param input_file: location of the input file
     :param input_fieldnames: fieldnames present in `input_file`
     :param output_data: list to append the parsed data for output
-    :param input_date_format: represents the format of date as present
-                              in `input_file` according to
-                              datetime.datetime specifications.
 
     :type input_file: str
     :type input_fieldnames: tuple
     :type output_data: list
-    :type input_date_format: str
 
     The function reads the `input_file` and manipulates them to return
     the `output_data`.
@@ -1059,8 +1054,7 @@ def _parse_nse_indices(input_file, input_fieldnames, output_data,
         logger.error("{0}: File not found.".format(input_file))
     else:
         _manipulate_nse_indices(input_data=input_data,
-                                output_data=output_data,
-                                input_date_format=input_date_format)
+                                output_data=output_data)
 
 
 def _parse_nse_equities(input_bhav_file, input_bhav_fieldnames,
@@ -1171,15 +1165,13 @@ def _output_nse_indices(date,
     output_data = []
     _parse_nse_indices(input_file=bhav_file,
                        input_fieldnames=bhav_fieldnames,
-                       output_data=output_data,
-                       input_date_format='%d-%m-%Y')
+                       output_data=output_data)
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to read it separately
     if date < datetime.date(2014, 5, 14):
         _parse_nse_indices(input_file=vix_file,
                            input_fieldnames=vix_fieldnames,
-                           output_data=output_data,
-                           input_date_format='%d-%b-%Y')
+                           output_data=output_data)
     _finalize_output(output_data)
     write_csv(ind_file, ind_header, ind_fieldnames, output_data)
 

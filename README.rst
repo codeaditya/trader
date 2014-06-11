@@ -112,6 +112,12 @@ How To Use This Module
    internet.
 
 
+Dependencies
+------------
+
+- `python-dateutil`_ to parse dates.
+
+
 How To Build Or Install The Module
 ----------------------------------
 
@@ -144,3 +150,4 @@ License
 License v3`_ (or any later version).
 
 .. _GNU General Public License v3: https://www.gnu.org/licenses/gpl.html
+.. _`python-dateutil`: https://pypi.python.org/pypi/python-dateutil
