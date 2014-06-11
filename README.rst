@@ -54,6 +54,7 @@ See the docstrings of individual private functions for details:
 
 - ``_read_input_as_list()``
 - ``_convert_dash_to_zero()``
+- ``_convert_blank_to_zero()``
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
 - ``_format_output_data()``

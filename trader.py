@@ -71,6 +71,7 @@ See the docstrings of individual private functions for details:
 
 - ``_read_input_as_list()``
 - ``_convert_dash_to_zero()``
+- ``_convert_blank_to_zero()``
 - ``_sanitize_ohlc()``
 - ``_pop_unnecessary_keys()``
 - ``_format_output_data()``
@@ -614,6 +615,19 @@ def _convert_dash_to_zero(data):
             data[element] = '0'
 
 
+def _convert_blank_to_zero(data):
+    """Takes a dictionary and if any of the values is blank i.e. "", it
+    converts it to "0".
+
+    :param data: dictionary of record
+    :type data: dict
+
+    """
+    for element in data:
+        if data[element] == '':
+            data[element] = '0'
+
+
 def _sanitize_ohlc(input_dict):
     """Takes a dictionary and modifies the values of Open, High and Low
     to be the value of Close; when the values of all of them is equal to
@@ -925,6 +939,7 @@ def _manipulate_nse_indices(input_data, output_data, input_date_format):
             # This is raised because of the header line
             continue
         _convert_dash_to_zero(record)
+        _convert_blank_to_zero(record)
         _sanitize_ohlc(record)
         output_data.append(record)
     return output_data
