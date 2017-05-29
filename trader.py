@@ -927,12 +927,11 @@ def _manipulate_nse_indices(input_data, output_data):
         else:
             record['Symbol'] = 'INDIAVIX'
             record['Volume'] = '0'
-        try:
-            date_str = record.get('Date')
-            record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
-        except TypeError:
-            # This is raised because of the header line
+        date_str = record.get('Date')
+        # Ignore header row containing the word "Date"
+        if date_str.find("Date") != -1:
             continue
+        record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
         _convert_dash_to_zero(record)
         _convert_blank_to_zero(record)
         _sanitize_ohlc(record)
@@ -1267,6 +1266,7 @@ def _output_nse_futures(date,
 
 if __name__ == "__main__":
     # DEBUGGING = True
+    process_nse_indices("2014-05-12")
     process_nse_indices("2017-05-29")
     process_nse_equities("2017-05-29")
     process_nse_futures("2017-05-29")
