@@ -445,7 +445,7 @@ def download_file(*urls,
                 read_response = response_received.read()
                 # Since we "Accept-Encoding" as "gzip", we need to
                 # decompress the response if received as such
-                # See: http://stackoverflow.com/q/16084117/1928540
+                # See: https://stackoverflow.com/q/16084117/1928540
                 if response_received.headers.get('Content-Encoding') == 'gzip':
                     logger.debug("Response received with 'gzip' header. "
                                  "Decompressing it.")
@@ -715,12 +715,12 @@ def _download_nse_indices(date,
     """
     # Generate download URLs
     bhavcopy, vix = None, None
-    bhavcopy = r'http://www.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
+    bhavcopy = r'https://nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to download it separately
     if date < datetime.date(2014, 5, 14):
-        vix = r'http://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
+        vix = r'https://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
             full_date=date.strftime('%d-%b-%Y'))
 
     # Download the files
@@ -751,11 +751,11 @@ def _download_nse_equities(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'http://nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
-    delivery = r'http://www.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
+    delivery = r'https://nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
         full_date=date.strftime('%d%m%Y'))
 
     # Download the files
@@ -780,7 +780,7 @@ def _download_nse_futures(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'http://nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
@@ -1267,6 +1267,6 @@ def _output_nse_futures(date,
 
 if __name__ == "__main__":
     # DEBUGGING = True
-    process_nse_indices("2014-05-28")
-    process_nse_equities("2014-05-28")
-    process_nse_futures("2014-05-28")
+    process_nse_indices("2017-05-29")
+    process_nse_equities("2017-05-29")
+    process_nse_futures("2017-05-29")
