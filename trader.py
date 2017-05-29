@@ -437,14 +437,9 @@ def download_file(*urls,
                 response_received = urllib.request.urlopen(request_sent)
                 logger.debug("Response received from {0}.".format(url))
             except urllib.error.URLError as e:
-                logger.warning("{0}: File could not be downloaded."
-                               "".format(filename))
-                if hasattr(e, 'code'):
-                    logger.warning("{0}: Error Code: {1}."
-                                   "".format(filename, e.code))
-                if hasattr(e, 'reason'):
-                    logger.warning("{0}: Error Reason: {1}."
-                                   "".format(filename, e.reason))
+                logger.warning("Error {code} : {reason} : {filename}".format(
+                    code=e.code, reason=e.reason, filename=filename
+                ))
             else:
                 output_file = os.path.join(download_location, filename)
                 read_response = response_received.read()
