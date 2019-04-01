@@ -969,10 +969,18 @@ def _manipulate_nse_equities(input_bhav, input_delv, output_data):
     # Loop through input_bhav
     for foo in input_bhav:
         record = None
-        if foo['Series'] == 'BE':
+        if foo['Series'] in (
+                'BE',   # Trade for Trade - Equities
+                'ID',   # Trade for Trade - InvITs
+                'RT',   # Trade for Trade - REITs
+                ):
             record = foo.copy()
             record['OI'] = record['Volume']
-        elif foo['Series'] == 'EQ':
+        elif foo['Series'] in (
+                'EQ',   # Rolling Settlement - Equities
+                'IV',   # Rolling Settlement - InvITs
+                'RR',   # Rolling Settlement - REITs
+                ):
             record = foo.copy()
             if input_delv is None:
                 record['OI'] = '0'
@@ -1083,17 +1091,18 @@ def _parse_nse_equities(input_bhav_file, input_bhav_fieldnames,
             return
         if not delv_data:
             # We could not find the Delivery File. Okay, at least
-            # process the Bhav file with OI data for 'EQ' Series as 0
+            # process the Bhav file with OI data for 'EQ'/'IV'/'RR'
+            # Series as 0
             logger.warning("{0}: File not found. Delivery data is not being "
                            "processed.".format(input_delv_file))
-            # We only want 'EQ'/'BE' Series data.
+            # We only want 'EQ'/'BE'/'IV'/'ID'/'RR'/'RT' Series data.
             _manipulate_nse_equities(input_bhav=bhav_data,
                                      input_delv=None,
                                      output_data=output_data)
     else:
         logger.debug("Both the files found - bhavcopy and delivery data.")
-        # We only want 'EQ'/'BE' Series data. Also obtain the value of
-        # OI for 'EQ' Series from delv
+        # We only want 'EQ'/'BE'/'IV'/'ID'/'RR'/'RT' Series data. Also
+        # obtain the value of OI for 'EQ'/'IV'/'RR' Series from delv
         _manipulate_nse_equities(input_bhav=bhav_data,
                                  input_delv=delv_data,
                                  output_data=output_data)
