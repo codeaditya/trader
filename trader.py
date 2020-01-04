@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Copyright 2013, 2014 Aditya <code.aditya@gmail.com>
+Copyright 2013-2020 Aditya <code.aditya@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -715,12 +715,12 @@ def _download_nse_indices(date,
     """
     # Generate download URLs
     bhavcopy, vix = None, None
-    bhavcopy = r'https://nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
+    bhavcopy = r'https://www1.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to download it separately
     if date < datetime.date(2014, 5, 14):
-        vix = r'https://nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
+        vix = r'https://www1.nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
             full_date=date.strftime('%d-%b-%Y'))
 
     # Download the files
@@ -751,11 +751,11 @@ def _download_nse_equities(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'https://nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://www1.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
-    delivery = r'https://nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
+    delivery = r'https://www1.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
         full_date=date.strftime('%d%m%Y'))
 
     # Download the files
@@ -780,7 +780,7 @@ def _download_nse_futures(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'https://nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://www1.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
