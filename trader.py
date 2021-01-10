@@ -715,7 +715,7 @@ def _download_nse_indices(date,
     """
     # Generate download URLs
     bhavcopy, vix = None, None
-    bhavcopy = r'https://www1.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
+    bhavcopy = r'https://archives.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to download it separately
@@ -751,11 +751,11 @@ def _download_nse_equities(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'https://www1.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://archives.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
-    delivery = r'https://www1.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
+    delivery = r'https://archives.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
         full_date=date.strftime('%d%m%Y'))
 
     # Download the files
@@ -780,7 +780,7 @@ def _download_nse_futures(date,
 
     """
     # Generate download URLs
-    bhavcopy = r'https://www1.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
+    bhavcopy = r'https://archives.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
         year=date.strftime('%Y'),
         mon=(date.strftime('%b')).upper(),
         date=date.strftime('%d'))
@@ -1279,3 +1279,5 @@ if __name__ == "__main__":
     process_nse_indices("2017-05-29")
     process_nse_equities("2017-05-29")
     process_nse_futures("2017-05-29")
+    process_nse_equities("2021-01-01")
+    process_nse_futures("2021-01-01")
