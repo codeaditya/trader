@@ -1281,3 +1281,7 @@ if __name__ == "__main__":
     process_nse_futures("2017-05-29")
     process_nse_equities("2021-01-01")
     process_nse_futures("2021-01-01")
+
+# Notes for special circumstances not dealt automatically
+# Revised URL for nse_futures("2021-03-30") <<-- only for this date
+# https://archives.nseindia.com/content/historical/DERIVATIVES/2021/MAR/fo30MAR2021bhav_revised.zip
