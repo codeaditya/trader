@@ -525,18 +525,14 @@ def get_request_headers():
     :rtype: dict
 
     """
-    accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    accept_encoding = 'gzip, deflate'
-    accept_language = 'en-US,en;q=0.5'
-    connection = 'keep-alive'
-    user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:27.0) Gecko/20100101 Firefox/27.0'
-    headers = {'Accept': accept,
-               'Accept-Encoding': accept_encoding,
-               'Accept-Language': accept_language,
-               'Connection': connection,
-               'User-Agent': user_agent,
-               }
-    return headers
+    return {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Connection': 'keep-alive',
+        'Referer': 'https://www.nseindia.com/',
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0',
+    }
 
 
 def unzip(input_zipfile):
