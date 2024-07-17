@@ -137,6 +137,7 @@ import csv
 import datetime
 import logging
 import os
+import socket
 import urllib.error
 import urllib.request
 import zipfile
@@ -434,12 +435,14 @@ def download_file(*urls,
             logger.info("Downloading {0}.".format(url))
             try:
                 request_sent = urllib.request.Request(url, headers=headers)
-                response_received = urllib.request.urlopen(request_sent)
+                response_received = urllib.request.urlopen(request_sent, timeout=10)
                 logger.debug("Response received from {0}.".format(url))
             except urllib.error.URLError as e:
                 logger.warning("Error {code} : {reason} : {filename}".format(
                     code=e.code, reason=e.reason, filename=filename
                 ))
+            except socket.timeout as e:
+                logger.error("Request Timed Out. Couldn't download {0}".format(url))
             else:
                 output_file = os.path.join(download_location, filename)
                 read_response = response_received.read()
