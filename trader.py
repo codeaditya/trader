@@ -893,12 +893,14 @@ def _get_nse_futures_filenames(date):
     return bhav_filename, fut_filename
 
 
-def _manipulate_nse_indices(input_data, output_data):
+def _manipulate_nse_indices(date, input_data, output_data):
     """Manipulates the data for NSE Indices.
 
+    :param date: date the data relates to
     :param input_data: data to be manipulated
     :param output_data: data after manipulation
 
+    :type date: datetime.date
     :type input_data: list containing each element as a dict
     :type output_data: list containing each element as a dict
 
@@ -930,7 +932,7 @@ def _manipulate_nse_indices(input_data, output_data):
         # Ignore header row containing the word "Date"
         if date_str.find("Date") != -1:
             continue
-        record['Date'] = parse(date_str, dayfirst=True).date().isoformat()
+        record['Date'] = date.isoformat()
         _convert_dash_to_zero(record)
         _convert_blank_to_zero(record)
         _sanitize_ohlc(record)
@@ -1034,13 +1036,15 @@ def _manipulate_nse_futures(input_bhav, output_data):
     return output_data
 
 
-def _parse_nse_indices(input_file, input_fieldnames, output_data):
+def _parse_nse_indices(date, input_file, input_fieldnames, output_data):
     """Parses the input file for NSE Indices.
 
+    :param date: date the data relates to
     :param input_file: location of the input file
     :param input_fieldnames: fieldnames present in `input_file`
     :param output_data: list to append the parsed data for output
 
+    :type date: datetime.date
     :type input_file: str
     :type input_fieldnames: tuple
     :type output_data: list
@@ -1054,7 +1058,8 @@ def _parse_nse_indices(input_file, input_fieldnames, output_data):
     except FileNotFoundError:
         logger.error("{0}: File not found.".format(input_file))
     else:
-        _manipulate_nse_indices(input_data=input_data,
+        _manipulate_nse_indices(date=date,
+                                input_data=input_data,
                                 output_data=output_data)
 
 
@@ -1165,13 +1170,15 @@ def _output_nse_indices(date,
                  'OI'
 
     output_data = []
-    _parse_nse_indices(input_file=bhav_file,
+    _parse_nse_indices(date=date,
+                       input_file=bhav_file,
                        input_fieldnames=bhav_fieldnames,
                        output_data=output_data)
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to read it separately
     if date < datetime.date(2014, 5, 14):
-        _parse_nse_indices(input_file=vix_file,
+        _parse_nse_indices(date=date,
+                           input_file=vix_file,
                            input_fieldnames=vix_fieldnames,
                            output_data=output_data)
     _finalize_output(output_data)
