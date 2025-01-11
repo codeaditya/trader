@@ -118,17 +118,11 @@ How To Build Or Install The Module
 1. Clone the repository, ``cd`` into it and run the following command to
    install the module:
 
-       python3 setup.py install
+        pip install dist/trader-2025.1.12-py3-none-any.whl
 
-2. To build/create a source distribution archive (zip/tar.gz):
+2. To build/create a source distribution archive (tar.gz and whl):
 
-       python3 setup.py sdist
-
-3. To generate an msi installer which would install the module in
-   "<Python3_installation_folder>/Lib/site-packages/" and repair/remove
-   it on running the file again:
-
-       python3 setup.py bdist_msi
+        python3 -m build
 
 
 Principal Author And Maintainer
