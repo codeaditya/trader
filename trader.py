@@ -531,7 +531,7 @@ def get_request_headers():
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive',
         'Referer': 'https://www.nseindia.com/',
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:90.0) Gecko/20100101 Firefox/90.0',
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0',
     }
 
 
@@ -716,7 +716,7 @@ def _download_nse_indices(date,
     """
     # Generate download URLs
     bhavcopy, vix = None, None
-    bhavcopy = r'https://archives.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
+    bhavcopy = r'https://nsearchives.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
         full_date=date.strftime('%d%m%Y'))
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to download it separately
@@ -752,15 +752,15 @@ def _download_nse_equities(date,
 
     """
     # Generate download URLs
-    delivery = r'https://archives.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
+    delivery = r'https://nsearchives.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
         full_date=date.strftime('%d%m%Y'))
 
     if date > datetime.date(2024, 7, 7):
         # CM-UDiFF Common Bhavcopy Final (zip)
-        bhavcopy = r'https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip'.format(
+        bhavcopy = r'https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip'.format(
             date=date.strftime('%Y%m%d'))
     else:
-        bhavcopy = r'https://archives.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
+        bhavcopy = r'https://nsearchives.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
             year=date.strftime('%Y'),
             mon=(date.strftime('%b')).upper(),
             date=date.strftime('%d'))
@@ -789,10 +789,10 @@ def _download_nse_futures(date,
     # Generate download URLs
     if date > datetime.date(2024, 7, 7):
         # F&O-UDiFF Common Bhavcopy Final (zip)
-        bhavcopy = r'https://archives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip'.format(
+        bhavcopy = r'https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip'.format(
             date=date.strftime('%Y%m%d'))
     else:
-        bhavcopy = r'https://archives.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
+        bhavcopy = r'https://nsearchives.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
             year=date.strftime('%Y'),
             mon=(date.strftime('%b')).upper(),
             date=date.strftime('%d'))
@@ -1371,6 +1371,6 @@ if __name__ == "__main__":
 # Notes for special circumstances not dealt automatically
 
 # Revised URL for nse_futures("2021-03-30") <<-- only for this date
-# https://archives.nseindia.com/content/historical/DERIVATIVES/2021/MAR/fo30MAR2021bhav_revised.zip
+# https://nsearchives.nseindia.com/content/historical/DERIVATIVES/2021/MAR/fo30MAR2021bhav_revised.zip
 
 # Downloaded ZIP file has file inside a folder: nse_futures("2023-02-13")

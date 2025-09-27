@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trader"
-version = "2025.01.12"
+version = "2025.09.27"
 dependencies = [
 ]
 requires-python = ">= 3.8"
