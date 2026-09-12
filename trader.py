@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Copyright 2013-2024 Aditya <code.aditya@gmail.com>
+Copyright 2013-2026 Aditya <code.aditya@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -531,7 +531,7 @@ def get_request_headers():
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive',
         'Referer': 'https://www.nseindia.com/',
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0',
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0',
     }
 
 
@@ -1047,7 +1047,7 @@ def _manipulate_nse_equities(date, input_bhav, input_delv, output_data):
             if input_delv is None:
                 record['OI'] = '0'
             else:
-                record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']))
+                record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']), '0')
         if record is not None:
             record['Date'] = date
             _sanitize_ohlc(record)   # Not generally required for NSE Equities
@@ -1364,6 +1364,7 @@ if __name__ == "__main__":
     process_nse_equities("2017-05-29")
     process_nse_equities("2021-01-01")
     process_nse_equities("2024-07-08")
+    process_nse_equities("2026-09-11")
     process_nse_futures("2017-05-29")
     process_nse_futures("2021-01-01")
     process_nse_futures("2024-07-08")
