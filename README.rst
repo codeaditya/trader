@@ -2,20 +2,20 @@
 trader
 ======
 
-**trader** is a Python 3 module which provides functions to download and
-process the data for Stock Markets.
+**trader** is a Python 3 module that provides functions for downloading
+and processing stock market data.
 
-This is expected to be used as a back-end module for a GUI which
-utilizes the work of this module. However, users are free to find their
-own creative uses.
+It is intended to serve as a back-end module for a GUI application that
+uses its functionality. However, users are free to use the module for
+other purposes.
 
 
 Exchange/Segments Supported
 ---------------------------
 
-- NSE/Indices (India)
-- NSE/Equities (India)
-- NSE/Futures (India)
+- NSE Indices (India)
+- NSE Equities (India)
+- NSE Futures (India)
 
 
 Functions Available
@@ -26,26 +26,36 @@ Public Functions
 
 This module provides the following public functions:
 
-``process_nse_indices()``:
-    download and process NSE Indices data to save as csv
-``process_nse_equities()``:
-    download and process NSE Equities data to save as csv
-``process_nse_futures()``:
-    download and process NSE Futures data to save as csv
-``download_file()``:
-    download the files off internet
-``apply_server_timestamp()``:
-    apply the last-modified timestamp to files as received from headers
-``to_datetime_date()``:
-    return datetime.date object where possible else None
-``create_folder()``:
-    create the folder in a safe manner
-``get_request_headers()``:
-    return "request headers" dict for `download_file()`
-``unzip()``:
-    extract the contents of zip file in present working directory
-``write_csv()``:
-    generate and save the file given necessary arguments
+``process_nse_indices()``
+    Download and process NSE Indices data, saving the results as CSV files.
+
+``process_nse_equities()``
+    Download and process NSE Equities data, saving the results as CSV files.
+
+``process_nse_futures()``
+    Download and process NSE Futures data, saving the results as CSV files.
+
+``download_file()``
+    Download files from the internet.
+
+``apply_server_timestamp()``
+    Apply the Last-Modified timestamp from the HTTP response headers to files.
+
+``to_datetime_date()``
+    Return a ``datetime.date`` object when possible; otherwise, return ``None``.
+
+``create_folder()``
+    Create a folder safely.
+
+``get_request_headers()``
+    Return the request headers dictionary used by ``download_file()``.
+
+``unzip()``
+    Extract the contents of a ZIP archive into the current working directory.
+
+``write_csv()``
+    Generate and save a CSV file using the supplied arguments.
+
 
 Private Functions
 +++++++++++++++++
@@ -88,41 +98,63 @@ See the docstrings of individual private functions for details:
 Global Variables
 ----------------
 
-- ``DEBUGGING = False``
-    When it is ``True``, no attempt is made to download the files.
+``DEBUGGING``
+    When ``True``, no attempt is made to download files.
 
+``DOWNLOAD_DIR``
+    Directory used to store downloaded files.
 
-How To Use This Module
-----------------------
-
-1. Import the module using:
-
-       import trader
-
-2. The user is expected to primarily make use of the following functions:
-
-   - ``process_nse_indices()``
-   - ``process_nse_equities()``
-   - ``process_nse_futures()``
-
-   Just pass the required arguments to them to download and process the
-   data for required Exchange/Segments.
-
-3. ``download_file()`` function can be used to download anything off the
-   internet.
+``PROCESSED_DIR``
+    Directory used to store processed files.
 
 
 How To Build Or Install The Module
 ----------------------------------
 
-1. Clone the repository, ``cd`` into it and run the following command to
-   install the module:
+Clone the repository and change into the repository directory.
 
-        pip install dist/trader-2025.1.12-py3-none-any.whl
+Building the distribution packages
+++++++++++++++++++++++++++++++++++
 
-2. To build/create a source distribution archive (tar.gz and whl):
+Install the ``build`` package and build the source distribution and wheel::
 
-        python3 -m build
+    python3 -m pip install --upgrade build
+    python3 -m build
+
+The generated distribution files will be available in the ``dist/``
+directory.
+
+Installing the built package
+++++++++++++++++++++++++++++
+
+Install the package from the locally built distribution files::
+
+    python3 -m pip install --upgrade --no-index --find-links=dist/ trader
+
+Note that ``--no-index`` prevents pip from accessing package indexes.
+Any dependencies not already installed must also be available locally.
+
+
+How To Use This Module
+----------------------
+
+Import the module::
+
+    import trader
+
+The module provides the following primary functions for downloading and
+processing stock market data:
+
+- ``process_nse_indices()``
+- ``process_nse_equities()``
+- ``process_nse_futures()``
+
+Call the appropriate function to download and process data for the
+required exchange segment. Refer to the function docstrings for details
+about the required arguments.
+
+The ``download_file()`` function can also be used to download files
+from the internet.
 
 
 Principal Author And Maintainer
@@ -134,7 +166,9 @@ Principal Author And Maintainer
 License
 -------
 
-**trader** is an Open Source Project released under `GNU General Public
-License v3`_ (or any later version).
+**trader** is free and open-source software distributed under the
+GNU General Public License, version 3 or (at your option) any later
+version.
 
-.. _GNU General Public License v3: https://www.gnu.org/licenses/gpl.html
+See the `GNU General Public License v3
+<https://www.gnu.org/licenses/gpl-3.0.html>`_.

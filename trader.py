@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- coding: utf-8 -*-
 
 """
 Copyright 2013-2026 Aditya <code.aditya@gmail.com>
@@ -17,119 +16,6 @@ Copyright 2013-2026 Aditya <code.aditya@gmail.com>
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-------------------------------------------------------------------------
-
-**trader** is a Python 3 module which provides functions to download and
-process the data for Stock Markets.
-
-This is expected to be used as a back-end module for a GUI which
-utilizes the work of this module. However, users are free to find their
-own creative uses.
-
-
-Exchange/Segments Supported
----------------------------
-
-- NSE/Indices (India)
-- NSE/Equities (India)
-- NSE/Futures (India)
-
-
-Functions Available
--------------------
-
-Public Functions
-++++++++++++++++
-
-This module provides the following public functions:
-
-``process_nse_indices()``:
-    download and process NSE Indices data to save as csv
-``process_nse_equities()``:
-    download and process NSE Equities data to save as csv
-``process_nse_futures()``:
-    download and process NSE Futures data to save as csv
-``download_file()``:
-    download the files off internet
-``apply_server_timestamp()``:
-    apply the last-modified timestamp to files as received from headers
-``to_datetime_date()``:
-    return datetime.date object where possible else None
-``create_folder()``:
-    create the folder in a safe manner
-``get_request_headers()``:
-    return "request headers" dict for `download_file()`
-``unzip()``:
-    extract the contents of zip file in present working directory
-``write_csv()``:
-    generate and save the file given necessary arguments
-
-Private Functions
-+++++++++++++++++
-
-See the docstrings of individual private functions for details:
-
-- ``_read_input_as_list()``
-- ``_convert_dash_to_zero()``
-- ``_convert_blank_to_zero()``
-- ``_sanitize_ohlc()``
-- ``_pop_unnecessary_keys()``
-- ``_format_output_data()``
-- ``_finalize_output()``
-
-- ``_download_nse_indices()``
-- ``_download_nse_equities()``
-- ``_download_nse_futures()``
-
-- ``_get_nse_indices_fieldnames()``
-- ``_get_nse_equities_fieldnames()``
-- ``_get_nse_futures_fieldnames()``
-
-- ``_get_nse_indices_filenames()``
-- ``_get_nse_equities_filenames()``
-- ``_get_nse_futures_filenames()``
-
-- ``_manipulate_nse_indices()``
-- ``_manipulate_nse_equities()``
-- ``_manipulate_nse_futures()``
-
-- ``_parse_nse_indices()``
-- ``_parse_nse_equities()``
-- ``_parse_nse_futures()``
-
-- ``_output_nse_indices()``
-- ``_output_nse_equities()``
-- ``_output_nse_futures()``
-
-
-Global Variables
-----------------
-
-- ``DEBUGGING = False``
-    When it is ``True``, no attempt is made to download the files
-
-
-How To Use This Module
-----------------------
-
-1. Import the module using:
-
-       import trader
-
-2. The user is expected to primarily make use of the following functions:
-
-   - ``process_nse_indices()``
-   - ``process_nse_equities()``
-   - ``process_nse_futures()``
-
-   Just pass the required arguments to them to download and process the
-   data for required Exchange/Segments.
-
-3. ``download_file()`` function can be used to download anything off the
-   internet.
-
-------------------------------------------------------------------------
-
 """
 
 # Import Standard modules
@@ -137,7 +23,6 @@ import csv
 import datetime
 import logging
 import os
-import socket
 import urllib.error
 import urllib.request
 import zipfile
@@ -151,8 +36,9 @@ logger.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 # Output formatting
-formatter = logging.Formatter("{asctime} - {module:15s} - {process} - "
-                              "{levelname:8s} - {message}", style="{")
+formatter = logging.Formatter(
+    "{asctime} - {module:15s} - {process} - {levelname:8s} - {message}", style="{"
+)
 ch.setFormatter(formatter)
 # Add console handler to logger object
 logger.addHandler(ch)
@@ -162,16 +48,18 @@ logger.addHandler(ch)
 #### Other Global Variables ###################################################
 # When DEBUGGING is set as True, it doesn't attempt to download anything
 DEBUGGING = False
+DOWNLOAD_DIR = os.path.join(os.getcwd(), "downloads")
+PROCESSED_DIR = os.path.join(os.getcwd(), "processed_data")
 ###############################################################################
 
 
-def process_nse_indices(start_date,
-                        end_date=None,
-                        download_location=os.path.join(os.getcwd(),
-                                                       'downloads'),
-                        output_location=os.path.join(os.getcwd(),
-                                                     'processed_data'),
-                        ignore_weekend=True):
+def process_nse_indices(
+    start_date,
+    end_date=None,
+    download_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+    ignore_weekend=True,
+):
     """Processes the data for NSE Indices.
 
     :param start_date: date from when the files should be downloaded
@@ -226,24 +114,25 @@ def process_nse_indices(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Indices for {0}.".format(current_date))
+            logger.debug(f"Skipped NSE Indices for {current_date}.")
             current_date += time_delta
             continue
-        _download_nse_indices(current_date,
-                              download_location=download_location)
-        _output_nse_indices(current_date,
-                            input_location=download_location,
-                            output_location=output_location)
+        _download_nse_indices(current_date, download_location=download_location)
+        _output_nse_indices(
+            current_date,
+            input_location=download_location,
+            output_location=output_location,
+        )
         current_date += time_delta
 
 
-def process_nse_equities(start_date,
-                         end_date=None,
-                         download_location=os.path.join(os.getcwd(),
-                                                        'downloads'),
-                         output_location=os.path.join(os.getcwd(),
-                                                      'processed_data'),
-                         ignore_weekend=True):
+def process_nse_equities(
+    start_date,
+    end_date=None,
+    download_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+    ignore_weekend=True,
+):
     """Processes the data for NSE Equities.
 
     :param start_date: date from when the files should be downloaded
@@ -298,24 +187,25 @@ def process_nse_equities(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Equities for {0}.".format(current_date))
+            logger.debug(f"Skipped NSE Equities for {current_date}.")
             current_date += time_delta
             continue
-        _download_nse_equities(current_date,
-                               download_location=download_location)
-        _output_nse_equities(current_date,
-                             input_location=download_location,
-                             output_location=output_location)
+        _download_nse_equities(current_date, download_location=download_location)
+        _output_nse_equities(
+            current_date,
+            input_location=download_location,
+            output_location=output_location,
+        )
         current_date += time_delta
 
 
-def process_nse_futures(start_date,
-                        end_date=None,
-                        download_location=os.path.join(os.getcwd(),
-                                                       'downloads'),
-                        output_location=os.path.join(os.getcwd(),
-                                                     'processed_data'),
-                        ignore_weekend=True):
+def process_nse_futures(
+    start_date,
+    end_date=None,
+    download_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+    ignore_weekend=True,
+):
     """Processes the data for NSE Futures.
 
     :param start_date: date from when the files should be downloaded
@@ -370,19 +260,19 @@ def process_nse_futures(start_date,
     # Loop through dates to download files and output csv files
     while current_date <= end_date:
         if ignore_weekend and datetime.date.isoweekday(current_date) in (6, 7):
-            logger.debug("Skipped NSE Futures for {0}.".format(current_date))
+            logger.debug(f"Skipped NSE Futures for {current_date}.")
             current_date += time_delta
             continue
-        _download_nse_futures(current_date,
-                              download_location=download_location)
-        _output_nse_futures(current_date,
-                            input_location=download_location,
-                            output_location=output_location)
+        _download_nse_futures(current_date, download_location=download_location)
+        _output_nse_futures(
+            current_date,
+            input_location=download_location,
+            output_location=output_location,
+        )
         current_date += time_delta
 
 
-def download_file(*urls,
-                  download_location=os.path.join(os.getcwd(), 'downloads')):
+def download_file(*urls, download_location=DOWNLOAD_DIR):
     """Downloads the files provided as multiple url arguments.
 
     :param urls: the url for files to be downloaded, separated by commas
@@ -429,36 +319,33 @@ def download_file(*urls,
             continue
         filename = os.path.basename(url)
         if not DEBUGGING:
-            logger.info("Downloading {0}.".format(url))
+            logger.info(f"Downloading {url}.")
             try:
                 request_sent = urllib.request.Request(url, headers=headers)
                 response_received = urllib.request.urlopen(request_sent, timeout=10)
-                logger.debug("Response received from {0}.".format(url))
+                logger.debug(f"Response received from {url}.")
             except urllib.error.URLError as e:
-                logger.warning("Error {code} : {reason} : {filename}".format(
-                    code=e.code, reason=e.reason, filename=filename
-                ))
-            except socket.timeout as e:
-                logger.error("Request Timed Out. Couldn't download {0}".format(url))
+                logger.warning(f"Error {e.code} : {e.reason} : {filename}")
+            except TimeoutError:
+                logger.error(f"Request Timed Out. Couldn't download {url}")
             else:
                 output_file = os.path.join(download_location, filename)
                 read_response = response_received.read()
                 # Since we "Accept-Encoding" as "gzip", we need to
                 # decompress the response if received as such
                 # See: https://stackoverflow.com/q/16084117/1928540
-                if response_received.headers.get('Content-Encoding') == 'gzip':
-                    logger.debug("Response received with 'gzip' header. "
-                                 "Decompressing it.")
-                    read_response = zlib.decompress(read_response,
-                                                    16 + zlib.MAX_WBITS)
-                with open(output_file, 'wb') as downloaded_file:
+                if response_received.headers.get("Content-Encoding") == "gzip":
+                    logger.debug(
+                        "Response received with 'gzip' header. Decompressing it."
+                    )
+                    read_response = zlib.decompress(read_response, 16 + zlib.MAX_WBITS)
+                with open(output_file, "wb") as downloaded_file:
                     downloaded_file.write(read_response)
-                last_modified = response_received.headers.get('Last-Modified')
+                last_modified = response_received.headers.get("Last-Modified")
                 apply_server_timestamp(output_file, last_modified)
-                logger.info("{0}: Downloaded successfully.".format(filename))
+                logger.info(f"{filename}: Downloaded successfully.")
         else:
-            logger.info("DEBUG MODE: {0} would be downloaded from {1}."
-                        "".format(filename, url))
+            logger.info(f"DEBUG MODE: {filename} would be downloaded from {url}.")
 
 
 def apply_server_timestamp(output_file, last_modified):
@@ -471,9 +358,10 @@ def apply_server_timestamp(output_file, last_modified):
     :type output_file: str
     :type last_modified: str
     """
-    server_datetime = datetime.datetime.strptime(last_modified,
-                                                 "%a, %d %b %Y %H:%M:%S GMT")
-    server_utc_time = server_datetime.replace(tzinfo=datetime.timezone.utc)
+    server_datetime = datetime.datetime.strptime(
+        last_modified, "%a, %d %b %Y %H:%M:%S GMT"
+    )
+    server_utc_time = server_datetime.replace(tzinfo=datetime.UTC)
     server_timestamp = server_utc_time.timestamp()
     os.utime(output_file, times=(server_timestamp, server_timestamp))
 
@@ -497,7 +385,7 @@ def to_datetime_date(input_date):
     elif type(input_date) is datetime.datetime:
         date = input_date.date()
     elif type(input_date) is str:
-        date = datetime.datetime.strptime(input_date, '%Y-%m-%d').date()
+        date = datetime.datetime.strptime(input_date, "%Y-%m-%d").date()
     return date
 
 
@@ -510,13 +398,14 @@ def create_folder(folder):
     """
     try:
         os.makedirs(folder, exist_ok=True)
-        logger.debug("{0} folder exists. Ready to process further."
-                     "".format(folder))
+        logger.debug(f"{folder} folder exists. Ready to process further.")
     except FileExistsError:
         # This is raised on Linux when a folder already exists however
         # its mode (ie; Permissions) do not match with the default mode
-        logger.warning("{0}: Make sure the folder already exists and you have "
-                       "write permissions for it.".format(folder))
+        logger.warning(
+            f"{folder}: Make sure the folder already exists and you have "
+            "write permissions for it."
+        )
 
 
 def get_request_headers():
@@ -526,12 +415,12 @@ def get_request_headers():
 
     """
     return {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www.nseindia.com/',
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:155.0) Gecko/20100101 Firefox/155.0',
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive",
+        "Referer": "https://www.nseindia.com/",
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:158.0) Gecko/20100101 Firefox/158.0",
     }
 
 
@@ -543,12 +432,13 @@ def unzip(input_zipfile):
 
     """
     try:
-        with zipfile.ZipFile(input_zipfile, 'r') as input_file:
+        with zipfile.ZipFile(input_zipfile, "r") as input_file:
             input_file.extractall()
-        logger.debug("{0}: Zip file extracted.".format(input_zipfile))
+        logger.debug(f"{input_zipfile}: Zip file extracted.")
     except FileNotFoundError:
-        logger.warning("{0}: File not found. Zip file could not be extracted."
-                       "".format(input_zipfile))
+        logger.warning(
+            f"{input_zipfile}: File not found. Zip file could not be extracted."
+        )
 
 
 def write_csv(output_file, header, fieldnames, output_data):
@@ -568,10 +458,10 @@ def write_csv(output_file, header, fieldnames, output_data):
     """
     if len(output_data) < 1:
         return
-    with open(output_file, 'w', newline='') as file:
-        csv.writer(file, delimiter=',').writerow(header)
-        csv.DictWriter(file, fieldnames, delimiter=',').writerows(output_data)
-    logger.info("{0}: File generated.".format(output_file))
+    with open(output_file, "w", newline="") as file:
+        csv.writer(file, delimiter=",").writerow(header)
+        csv.DictWriter(file, fieldnames, delimiter=",").writerows(output_data)
+    logger.info(f"{output_file}: File generated.")
 
 
 def _read_input_as_list(input_file, input_fieldnames):
@@ -588,12 +478,16 @@ def _read_input_as_list(input_file, input_fieldnames):
     :rtype: list containing each element as a dict
 
     """
-    with open(input_file, 'r') as file:
-        input_data = list(csv.DictReader(file,
-                                         delimiter=',',
-                                         fieldnames=input_fieldnames,
-                                         restkey='Skip',
-                                         restval='Skip'))
+    with open(input_file, "r") as file:
+        input_data = list(
+            csv.DictReader(
+                file,
+                delimiter=",",
+                fieldnames=input_fieldnames,
+                restkey="Skip",
+                restval="Skip",
+            )
+        )
     return input_data
 
 
@@ -606,8 +500,8 @@ def _convert_dash_to_zero(data):
 
     """
     for element in data:
-        if data[element] == '-':
-            data[element] = '0'
+        if data[element] == "-":
+            data[element] = "0"
 
 
 def _convert_blank_to_zero(data):
@@ -619,8 +513,8 @@ def _convert_blank_to_zero(data):
 
     """
     for element in data:
-        if data[element] == '':
-            data[element] = '0'
+        if data[element] == "":
+            data[element] = "0"
 
 
 def _sanitize_ohlc(input_dict):
@@ -632,10 +526,10 @@ def _sanitize_ohlc(input_dict):
     :type input_dict: dict
 
     """
-    keys = ['Open', 'High', 'Low']
-    if input_dict['Close'] != '0' and all(input_dict[x] == '0' for x in keys):
+    keys = ["Open", "High", "Low"]
+    if input_dict["Close"] != "0" and all(input_dict[x] == "0" for x in keys):
         for field in keys:
-            input_dict[field] = input_dict['Close']
+            input_dict[field] = input_dict["Close"]
 
 
 def _pop_unnecessary_keys(data):
@@ -647,15 +541,49 @@ def _pop_unnecessary_keys(data):
 
     """
     unnecessary_keys = [
-        'Change', 'Change_pct', 'Turnover', 'PE', 'PB', 'ISIN', 'Div_yield',
-        'Prev_Close', 'Skip', 'Series', 'LTP', 'Total_Trades', 'Instrument',
-        'Expiry_Date', 'Strike_Price', 'Option_Type', 'Settlement_Price',
-        'Contracts', 'Turnover_lakh', 'OI_Change', 'BizDt', 'Sgmt', 'Src',
-        'FinInstrmTp', 'FinInstrmId', 'ISIN', 'XpryDt', 'FininstrmActlXpryDt',
-        'StrkPric', 'OptnTp', 'FinInstrmNm', 'UndrlygPric', 'SttlmPric',
-        'OpnIntrst', 'ChngInOpnIntrst', 'SsnId', 'NewBrdLotQty', 'Rmks',
-        'Rsvd1', 'Rsvd2', 'Rsvd3', 'Rsvd4',
-        ]
+        "Change",
+        "Change_pct",
+        "Turnover",
+        "PE",
+        "PB",
+        "ISIN",
+        "Div_yield",
+        "Prev_Close",
+        "Skip",
+        "Series",
+        "LTP",
+        "Total_Trades",
+        "Instrument",
+        "Expiry_Date",
+        "Strike_Price",
+        "Option_Type",
+        "Settlement_Price",
+        "Contracts",
+        "Turnover_lakh",
+        "OI_Change",
+        "BizDt",
+        "Sgmt",
+        "Src",
+        "FinInstrmTp",
+        "FinInstrmId",
+        "ISIN",
+        "XpryDt",
+        "FininstrmActlXpryDt",
+        "StrkPric",
+        "OptnTp",
+        "FinInstrmNm",
+        "UndrlygPric",
+        "SttlmPric",
+        "OpnIntrst",
+        "ChngInOpnIntrst",
+        "SsnId",
+        "NewBrdLotQty",
+        "Rmks",
+        "Rsvd1",
+        "Rsvd2",
+        "Rsvd3",
+        "Rsvd4",
+    ]
     for element in data:
         for key in unnecessary_keys:
             element.pop(key, None)
@@ -669,15 +597,15 @@ def _format_output_data(data):
     :type data: list containing each element as a dict
 
     """
-    strip_spaces = ['Symbol', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI']
-    format_floats = ['Open', 'High', 'Low', 'Close']
+    strip_spaces = ["Symbol", "Open", "High", "Low", "Close", "Volume", "OI"]
+    format_floats = ["Open", "High", "Low", "Close"]
 
     for element in data:
         # element['Date'] is to be formatted in _manipulate_*() functions
         for key in strip_spaces:
             element[key] = element[key].strip()
         for key in format_floats:
-            element[key] = "{0:.2f}".format(float(element[key]))
+            element[key] = f"{float(element[key]):.2f}"
 
 
 def _finalize_output(data):
@@ -695,9 +623,7 @@ def _finalize_output(data):
     _format_output_data(data)
 
 
-def _download_nse_indices(date,
-                          download_location=os.path.join(os.getcwd(),
-                                                         'downloads')):
+def _download_nse_indices(date, download_location=DOWNLOAD_DIR):
     """Downloads the files for NSE Indices.
 
     :param date: date for which files to be downloaded
@@ -716,21 +642,21 @@ def _download_nse_indices(date,
     """
     # Generate download URLs
     bhavcopy, vix = None, None
-    bhavcopy = r'https://nsearchives.nseindia.com/content/indices/ind_close_all_{full_date}.csv'.format(
-        full_date=date.strftime('%d%m%Y'))
+    bhavcopy = r"https://nsearchives.nseindia.com/content/indices/ind_close_all_{full_date}.csv".format(
+        full_date=date.strftime("%d%m%Y")
+    )
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to download it separately
     if date < datetime.date(2014, 5, 14):
-        vix = r'https://www1.nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv'.format(
-            full_date=date.strftime('%d-%b-%Y'))
+        vix = r"https://www1.nseindia.com/content/vix/histdata/hist_india_vix_{full_date}_{full_date}.csv".format(
+            full_date=date.strftime("%d-%b-%Y")
+        )
 
     # Download the files
     download_file(bhavcopy, vix, download_location=download_location)
 
 
-def _download_nse_equities(date,
-                           download_location=os.path.join(os.getcwd(),
-                                                          'downloads')):
+def _download_nse_equities(date, download_location=DOWNLOAD_DIR):
     """Downloads the files for NSE Equities.
 
     :param date: date for which files to be downloaded
@@ -752,26 +678,27 @@ def _download_nse_equities(date,
 
     """
     # Generate download URLs
-    delivery = r'https://nsearchives.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT'.format(
-        full_date=date.strftime('%d%m%Y'))
+    delivery = r"https://nsearchives.nseindia.com/archives/equities/mto/MTO_{full_date}.DAT".format(
+        full_date=date.strftime("%d%m%Y")
+    )
 
     if date > datetime.date(2024, 7, 7):
         # CM-UDiFF Common Bhavcopy Final (zip)
-        bhavcopy = r'https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip'.format(
-            date=date.strftime('%Y%m%d'))
+        bhavcopy = r"https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip".format(
+            date=date.strftime("%Y%m%d")
+        )
     else:
-        bhavcopy = r'https://nsearchives.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip'.format(
-            year=date.strftime('%Y'),
-            mon=(date.strftime('%b')).upper(),
-            date=date.strftime('%d'))
+        bhavcopy = r"https://nsearchives.nseindia.com/content/historical/EQUITIES/{year}/{mon}/cm{date}{mon}{year}bhav.csv.zip".format(
+            year=date.strftime("%Y"),
+            mon=(date.strftime("%b")).upper(),
+            date=date.strftime("%d"),
+        )
 
     # Download the files
     download_file(bhavcopy, delivery, download_location=download_location)
 
 
-def _download_nse_futures(date,
-                          download_location=os.path.join(os.getcwd(),
-                                                         'downloads')):
+def _download_nse_futures(date, download_location=DOWNLOAD_DIR):
     """Downloads the files for NSE Futures.
 
     :param date: date for which files to be downloaded
@@ -789,13 +716,15 @@ def _download_nse_futures(date,
     # Generate download URLs
     if date > datetime.date(2024, 7, 7):
         # F&O-UDiFF Common Bhavcopy Final (zip)
-        bhavcopy = r'https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip'.format(
-            date=date.strftime('%Y%m%d'))
+        bhavcopy = r"https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip".format(
+            date=date.strftime("%Y%m%d")
+        )
     else:
-        bhavcopy = r'https://nsearchives.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip'.format(
-            year=date.strftime('%Y'),
-            mon=(date.strftime('%b')).upper(),
-            date=date.strftime('%d'))
+        bhavcopy = r"https://nsearchives.nseindia.com/content/historical/DERIVATIVES/{year}/{mon}/fo{date}{mon}{year}bhav.csv.zip".format(
+            year=date.strftime("%Y"),
+            mon=(date.strftime("%b")).upper(),
+            date=date.strftime("%d"),
+        )
     # Download the files
     download_file(bhavcopy, download_location=download_location)
 
@@ -807,13 +736,32 @@ def _get_nse_indices_fieldnames():
     :rtype: tuple of tuples
 
     """
-    bhav_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
-                       'Change', 'Change_pct', 'Volume', 'Turnover', 'PE',
-                       'PB', 'Div_yield')
-    vix_fieldnames = ('Date', 'Open', 'High', 'Low', 'Close', 'Prev_Close',
-                      'Change', 'Change_pct')
-    ind_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
-                      'Volume', 'OI')
+    bhav_fieldnames = (
+        "Symbol",
+        "Date",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Change",
+        "Change_pct",
+        "Volume",
+        "Turnover",
+        "PE",
+        "PB",
+        "Div_yield",
+    )
+    vix_fieldnames = (
+        "Date",
+        "Open",
+        "High",
+        "Low",
+        "Close",
+        "Prev_Close",
+        "Change",
+        "Change_pct",
+    )
+    ind_fieldnames = ("Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI")
     return bhav_fieldnames, vix_fieldnames, ind_fieldnames
 
 
@@ -828,25 +776,61 @@ def _get_nse_equities_fieldnames(date):
     :rtype: tuple of tuples
 
     """
-    delv_fieldnames = ('Type', 'Sl_No', 'Symbol', 'Series', 'Volume', 'OI',
-                       'OI_%')
-    eq_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
-                     'Volume', 'OI')
+    delv_fieldnames = ("Type", "Sl_No", "Symbol", "Series", "Volume", "OI", "OI_%")
+    eq_fieldnames = ("Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI")
     if date > datetime.date(2024, 7, 7):
         bhav_fieldnames = (
-            'Date', 'BizDt', 'Sgmt', 'Src', 'FinInstrmTp', 'FinInstrmId',
-            'ISIN', 'Symbol', 'Series', 'XpryDt', 'FininstrmActlXpryDt',
-            'StrkPric', 'OptnTp', 'FinInstrmNm', 'Open', 'High', 'Low',
-            'Close', 'LTP', 'Prev_Close', 'UndrlygPric', 'SttlmPric',
-            'OpnIntrst', 'ChngInOpnIntrst', 'Volume', 'Turnover',
-            'Total_Trades', 'SsnId', 'NewBrdLotQty', 'Rmks', 'Rsvd1', 'Rsvd2',
-            'Rsvd3', 'Rsvd4',
-            )
+            "Date",
+            "BizDt",
+            "Sgmt",
+            "Src",
+            "FinInstrmTp",
+            "FinInstrmId",
+            "ISIN",
+            "Symbol",
+            "Series",
+            "XpryDt",
+            "FininstrmActlXpryDt",
+            "StrkPric",
+            "OptnTp",
+            "FinInstrmNm",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "LTP",
+            "Prev_Close",
+            "UndrlygPric",
+            "SttlmPric",
+            "OpnIntrst",
+            "ChngInOpnIntrst",
+            "Volume",
+            "Turnover",
+            "Total_Trades",
+            "SsnId",
+            "NewBrdLotQty",
+            "Rmks",
+            "Rsvd1",
+            "Rsvd2",
+            "Rsvd3",
+            "Rsvd4",
+        )
     else:
         bhav_fieldnames = (
-            'Symbol', 'Series', 'Open', 'High', 'Low', 'Close', 'LTP',
-            'Prev_Close', 'Volume', 'Turnover', 'Date', 'Total_Trades', 'ISIN',
-            )
+            "Symbol",
+            "Series",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "LTP",
+            "Prev_Close",
+            "Volume",
+            "Turnover",
+            "Date",
+            "Total_Trades",
+            "ISIN",
+        )
     return bhav_fieldnames, delv_fieldnames, eq_fieldnames
 
 
@@ -861,24 +845,62 @@ def _get_nse_futures_fieldnames(date):
     :rtype: tuple of tuples
 
     """
-    fut_fieldnames = ('Symbol', 'Date', 'Open', 'High', 'Low', 'Close',
-                      'Volume', 'OI')
+    fut_fieldnames = ("Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI")
     if date > datetime.date(2024, 7, 7):
         bhav_fieldnames = (
-            'Date', 'BizDt', 'Sgmt', 'Src', 'Instrument', 'FinInstrmId',
-            'ISIN', 'Symbol', 'Series', 'Expiry_Date', 'FininstrmActlXpryDt',
-            'Strike_Price', 'Option_Type', 'FinInstrmNm', 'Open', 'High', 'Low',
-            'Close', 'LTP', 'Prev_Close', 'UndrlygPric', 'Settlement_Price',
-            'OI', 'OI_Change', 'Contracts', 'Turnover_lakh',
-            'Total_Trades', 'SsnId', 'NewBrdLotQty', 'Rmks', 'Rsvd1', 'Rsvd2',
-            'Rsvd3', 'Rsvd4',
-            )
+            "Date",
+            "BizDt",
+            "Sgmt",
+            "Src",
+            "Instrument",
+            "FinInstrmId",
+            "ISIN",
+            "Symbol",
+            "Series",
+            "Expiry_Date",
+            "FininstrmActlXpryDt",
+            "Strike_Price",
+            "Option_Type",
+            "FinInstrmNm",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "LTP",
+            "Prev_Close",
+            "UndrlygPric",
+            "Settlement_Price",
+            "OI",
+            "OI_Change",
+            "Contracts",
+            "Turnover_lakh",
+            "Total_Trades",
+            "SsnId",
+            "NewBrdLotQty",
+            "Rmks",
+            "Rsvd1",
+            "Rsvd2",
+            "Rsvd3",
+            "Rsvd4",
+        )
     else:
         bhav_fieldnames = (
-            'Instrument', 'Symbol', 'Expiry_Date', 'Strike_Price',
-            'Option_Type', 'Open', 'High', 'Low', 'Close', 'Settlement_Price',
-            'Contracts', 'Turnover_lakh', 'OI', 'OI_Change', 'Date',
-            )
+            "Instrument",
+            "Symbol",
+            "Expiry_Date",
+            "Strike_Price",
+            "Option_Type",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "Settlement_Price",
+            "Contracts",
+            "Turnover_lakh",
+            "OI",
+            "OI_Change",
+            "Date",
+        )
     return bhav_fieldnames, fut_fieldnames
 
 
@@ -892,12 +914,15 @@ def _get_nse_indices_filenames(date):
     :rtype: tuple of str
 
     """
-    bhav_filename = r'ind_close_all_{current_date}.csv'.format(
-        current_date=date.strftime('%d%m%Y'))
-    vix_filename = r'hist_india_vix_{current_date}_{current_date}.csv'.format(
-        current_date=date.strftime('%d-%b-%Y'))
-    ind_filename = r'NSE-Indices-{current_date}.csv'.format(
-        current_date=date.strftime('%Y-%m-%d'))
+    bhav_filename = r"ind_close_all_{current_date}.csv".format(
+        current_date=date.strftime("%d%m%Y")
+    )
+    vix_filename = r"hist_india_vix_{current_date}_{current_date}.csv".format(
+        current_date=date.strftime("%d-%b-%Y")
+    )
+    ind_filename = r"NSE-Indices-{current_date}.csv".format(
+        current_date=date.strftime("%Y-%m-%d")
+    )
     return bhav_filename, vix_filename, ind_filename
 
 
@@ -911,17 +936,21 @@ def _get_nse_equities_filenames(date):
     :rtype: tuple of str
 
     """
-    delv_filename = r'MTO_{current_date}.DAT'.format(
-        current_date=date.strftime('%d%m%Y'))
-    eq_filename = r'NSE-Equities-{current_date}.csv'.format(
-        current_date=date.strftime('%Y-%m-%d'))
+    delv_filename = r"MTO_{current_date}.DAT".format(
+        current_date=date.strftime("%d%m%Y")
+    )
+    eq_filename = r"NSE-Equities-{current_date}.csv".format(
+        current_date=date.strftime("%Y-%m-%d")
+    )
 
     if date > datetime.date(2024, 7, 7):
-        bhav_filename = r'BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip'.format(
-            date=date.strftime('%Y%m%d'))
+        bhav_filename = r"BhavCopy_NSE_CM_0_0_0_{date}_F_0000.csv.zip".format(
+            date=date.strftime("%Y%m%d")
+        )
     else:
-        bhav_filename = r'cm{current_date}bhav.csv.zip'.format(
-            current_date=(date.strftime('%d%b%Y')).upper())
+        bhav_filename = r"cm{current_date}bhav.csv.zip".format(
+            current_date=(date.strftime("%d%b%Y")).upper()
+        )
     return bhav_filename, delv_filename, eq_filename
 
 
@@ -935,14 +964,17 @@ def _get_nse_futures_filenames(date):
     :rtype: tuple of str
 
     """
-    fut_filename = r'NSE-Futures-{current_date}.csv'.format(
-        current_date=date.strftime('%Y-%m-%d'))
+    fut_filename = r"NSE-Futures-{current_date}.csv".format(
+        current_date=date.strftime("%Y-%m-%d")
+    )
     if date > datetime.date(2024, 7, 7):
-        bhav_filename = r'BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip'.format(
-            date=date.strftime('%Y%m%d'))
+        bhav_filename = r"BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip".format(
+            date=date.strftime("%Y%m%d")
+        )
     else:
-        bhav_filename = r'fo{current_date}bhav.csv.zip'.format(
-            current_date=(date.strftime('%d%b%Y')).upper())
+        bhav_filename = r"fo{current_date}bhav.csv.zip".format(
+            current_date=(date.strftime("%d%b%Y")).upper()
+        )
     return bhav_filename, fut_filename
 
 
@@ -966,26 +998,26 @@ def _manipulate_nse_indices(date, input_data, output_data):
     """
     for foo in input_data:
         record = foo.copy()
-        record['OI'] = '0'
-        if 'Symbol' in record:
-            record['Symbol'] = record['Symbol'].upper().replace(" ", "")
+        record["OI"] = "0"
+        if "Symbol" in record:
+            record["Symbol"] = record["Symbol"].upper().replace(" ", "")
             try:
                 # Turnover is in Rs. Crore, convert it to Rs. Lakh and
                 # use it as Volume which is more useful than sum of
                 # volume of all the scrips in case of Indices
-                volume = float(record['Turnover']) * 100
-                record['Volume'] = "{0:.0f}".format(volume)
+                volume = float(record["Turnover"]) * 100
+                record["Volume"] = f"{volume:.0f}"
             except ValueError:
                 # This is raised because of the header line
                 pass
         else:
-            record['Symbol'] = 'INDIAVIX'
-            record['Volume'] = '0'
-        date_str = record.get('Date')
+            record["Symbol"] = "INDIAVIX"
+            record["Volume"] = "0"
+        date_str = record.get("Date")
         # Ignore header row containing the word "Date"
         if date_str.find("Date") != -1:
             continue
-        record['Date'] = date.isoformat()
+        record["Date"] = date.isoformat()
         _convert_dash_to_zero(record)
         _convert_blank_to_zero(record)
         _sanitize_ohlc(record)
@@ -1020,37 +1052,37 @@ def _manipulate_nse_equities(date, input_bhav, input_delv, output_data):
     # each foo in input_bhav.
     delv_oi = None
     if input_delv:
-        delv_oi = {(x['Symbol'], x['Series']): x.get('OI') for x in input_delv}
+        delv_oi = {(x["Symbol"], x["Series"]): x.get("OI") for x in input_delv}
 
     if date > datetime.date(2024, 7, 7):
         input_bhav = sorted(
             input_bhav,
-            key=lambda x: (x['Symbol'], x['Series']),
+            key=lambda x: (x["Symbol"], x["Series"]),
         )
 
     # Loop through input_bhav
     for foo in input_bhav:
         record = None
-        if foo['Series'] in (
-                'BE',   # Trade for Trade - Equities
-                'ID',   # Trade for Trade - InvITs
-                'RT',   # Trade for Trade - REITs
-                ):
+        if foo["Series"] in (
+            "BE",  # Trade for Trade - Equities
+            "ID",  # Trade for Trade - InvITs
+            "RT",  # Trade for Trade - REITs
+        ):
             record = foo.copy()
-            record['OI'] = record['Volume']
-        elif foo['Series'] in (
-                'EQ',   # Rolling Settlement - Equities
-                'IV',   # Rolling Settlement - InvITs
-                'RR',   # Rolling Settlement - REITs
-                ):
+            record["OI"] = record["Volume"]
+        elif foo["Series"] in (
+            "EQ",  # Rolling Settlement - Equities
+            "IV",  # Rolling Settlement - InvITs
+            "RR",  # Rolling Settlement - REITs
+        ):
             record = foo.copy()
             if input_delv is None:
-                record['OI'] = '0'
+                record["OI"] = "0"
             else:
-                record['OI'] = delv_oi.get((foo['Symbol'], foo['Series']), '0')
+                record["OI"] = delv_oi.get((foo["Symbol"], foo["Series"]), "0")
         if record is not None:
-            record['Date'] = date
-            _sanitize_ohlc(record)   # Not generally required for NSE Equities
+            record["Date"] = date
+            _sanitize_ohlc(record)  # Not generally required for NSE Equities
             output_data.append(record)
     return output_data
 
@@ -1075,28 +1107,50 @@ def _manipulate_nse_futures(date, input_bhav, output_data):
     """
     pos = 0
     previous_symbol = None
-    future_suffix = ['-I', '-II', '-III', '-IV', '-V', '-VI', '-VII', '-VIII',
-                     '-IX', '-X', '-XI', '-XII', '-XIII', '-XIV', '-XV', '-XVI']
+    future_suffix = [
+        "-I",
+        "-II",
+        "-III",
+        "-IV",
+        "-V",
+        "-VI",
+        "-VII",
+        "-VIII",
+        "-IX",
+        "-X",
+        "-XI",
+        "-XII",
+        "-XIII",
+        "-XIV",
+        "-XV",
+        "-XVI",
+    ]
 
     if date > datetime.date(2024, 7, 7):
         input_bhav = sorted(
             input_bhav,
-            key=lambda x: (x['Instrument'], x['Symbol'], x['Expiry_Date'], x['Option_Type'], x['Strike_Price']),
+            key=lambda x: (
+                x["Instrument"],
+                x["Symbol"],
+                x["Expiry_Date"],
+                x["Option_Type"],
+                x["Strike_Price"],
+            ),
         )
 
     # Loop through input_bhav
     for foo in input_bhav:
-        if foo['Instrument'] in ('FUTIDX', 'FUTIVX', 'FUTSTK', 'IDF', 'STF'):
-            current_symbol = foo['Symbol']
+        if foo["Instrument"] in ("FUTIDX", "FUTIVX", "FUTSTK", "IDF", "STF"):
+            current_symbol = foo["Symbol"]
             record = foo.copy()
             if current_symbol == previous_symbol:
                 pos += 1
             else:
                 pos = 0
-            record['Symbol'] = record['Symbol'] + future_suffix[pos]
-            record['Volume'] = record['Contracts']
-            record['Date'] = date
-            record['Close'] = record['Settlement_Price']
+            record["Symbol"] = record["Symbol"] + future_suffix[pos]
+            record["Volume"] = record["Contracts"]
+            record["Date"] = date
+            record["Close"] = record["Settlement_Price"]
             _sanitize_ohlc(record)
             output_data.append(record)
             previous_symbol = current_symbol
@@ -1123,16 +1177,21 @@ def _parse_nse_indices(date, input_file, input_fieldnames, output_data):
     try:
         input_data = _read_input_as_list(input_file, input_fieldnames)
     except FileNotFoundError:
-        logger.error("{0}: File not found.".format(input_file))
+        logger.error(f"{input_file}: File not found.")
     else:
-        _manipulate_nse_indices(date=date,
-                                input_data=input_data,
-                                output_data=output_data)
+        _manipulate_nse_indices(
+            date=date, input_data=input_data, output_data=output_data
+        )
 
 
-def _parse_nse_equities(date, input_bhav_file, input_bhav_fieldnames,
-                        input_delv_file, input_delv_fieldnames,
-                        output_data):
+def _parse_nse_equities(
+    date,
+    input_bhav_file,
+    input_bhav_fieldnames,
+    input_delv_file,
+    input_delv_fieldnames,
+    output_data,
+):
     """Parses the input files for NSE Equities.
 
     :param date: date for which files to be processed
@@ -1159,28 +1218,32 @@ def _parse_nse_equities(date, input_bhav_file, input_bhav_fieldnames,
         delv_data = _read_input_as_list(input_delv_file, input_delv_fieldnames)
     except FileNotFoundError:
         if not bhav_data:
-            logger.error("{0}: File not found. Nothing is processed."
-                         "".format(input_bhav_file))
+            logger.error(f"{input_bhav_file}: File not found. Nothing is processed.")
             return
         if not delv_data:
             # We could not find the Delivery File. Okay, at least
             # process the Bhav file with OI data for 'EQ'/'IV'/'RR'
             # Series as 0
-            logger.warning("{0}: File not found. Delivery data is not being "
-                           "processed.".format(input_delv_file))
+            logger.warning(
+                f"{input_delv_file}: File not found. Delivery data is not being processed."
+            )
             # We only want 'EQ'/'BE'/'IV'/'ID'/'RR'/'RT' Series data.
-            _manipulate_nse_equities(date=date,
-                                     input_bhav=bhav_data,
-                                     input_delv=None,
-                                     output_data=output_data)
+            _manipulate_nse_equities(
+                date=date,
+                input_bhav=bhav_data,
+                input_delv=None,
+                output_data=output_data,
+            )
     else:
         logger.debug("Both the files found - bhavcopy and delivery data.")
         # We only want 'EQ'/'BE'/'IV'/'ID'/'RR'/'RT' Series data. Also
         # obtain the value of OI for 'EQ'/'IV'/'RR' Series from delv
-        _manipulate_nse_equities(date=date,
-                                 input_bhav=bhav_data,
-                                 input_delv=delv_data,
-                                 output_data=output_data)
+        _manipulate_nse_equities(
+            date=date,
+            input_bhav=bhav_data,
+            input_delv=delv_data,
+            output_data=output_data,
+        )
 
 
 def _parse_nse_futures(date, input_file, input_fieldnames, output_data):
@@ -1203,18 +1266,18 @@ def _parse_nse_futures(date, input_file, input_fieldnames, output_data):
     try:
         input_data = _read_input_as_list(input_file, input_fieldnames)
     except FileNotFoundError:
-        logger.error("{0}: File not found.".format(input_file))
+        logger.error(f"{input_file}: File not found.")
     else:
-        _manipulate_nse_futures(date=date,
-                                input_bhav=input_data,
-                                output_data=output_data)
+        _manipulate_nse_futures(
+            date=date, input_bhav=input_data, output_data=output_data
+        )
 
 
-def _output_nse_indices(date,
-                        input_location=os.path.join(os.getcwd(),
-                                                    'downloads'),
-                        output_location=os.path.join(os.getcwd(),
-                                                     'processed_data')):
+def _output_nse_indices(
+    date,
+    input_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+):
     """Outputs the files for NSE Indices as csv.
 
     :param date: date for which files to be processed
@@ -1240,30 +1303,33 @@ def _output_nse_indices(date,
     bhav_fieldnames, vix_fieldnames, ind_fieldnames = _get_nse_indices_fieldnames()
 
     # The header line which we would write in the output file
-    ind_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', \
-                 'OI'
+    ind_header = "Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI"
 
     output_data = []
-    _parse_nse_indices(date=date,
-                       input_file=bhav_file,
-                       input_fieldnames=bhav_fieldnames,
-                       output_data=output_data)
+    _parse_nse_indices(
+        date=date,
+        input_file=bhav_file,
+        input_fieldnames=bhav_fieldnames,
+        output_data=output_data,
+    )
     # Since 14th May 2014, data for INDIAVIX is included in bhavcopy
     # itself, so no need to read it separately
     if date < datetime.date(2014, 5, 14):
-        _parse_nse_indices(date=date,
-                           input_file=vix_file,
-                           input_fieldnames=vix_fieldnames,
-                           output_data=output_data)
+        _parse_nse_indices(
+            date=date,
+            input_file=vix_file,
+            input_fieldnames=vix_fieldnames,
+            output_data=output_data,
+        )
     _finalize_output(output_data)
     write_csv(ind_file, ind_header, ind_fieldnames, output_data)
 
 
-def _output_nse_equities(date,
-                         input_location=os.path.join(os.getcwd(),
-                                                     'downloads'),
-                         output_location=os.path.join(os.getcwd(),
-                                                      'processed_data')):
+def _output_nse_equities(
+    date,
+    input_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+):
     """Outputs the files for NSE Equities as csv.
 
     :param date: date for which files to be processed
@@ -1293,26 +1359,28 @@ def _output_nse_equities(date,
     bhav_fieldnames, delv_fieldnames, eq_fieldnames = _get_nse_equities_fieldnames(date)
 
     # The header line which we would write in the output file
-    eq_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'OI'
+    eq_header = "Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI"
 
     output_data = []
-    _parse_nse_equities(date=date,
-                        input_bhav_file=bhav_file,
-                        input_bhav_fieldnames=bhav_fieldnames,
-                        input_delv_file=delv_file,
-                        input_delv_fieldnames=delv_fieldnames,
-                        output_data=output_data)
+    _parse_nse_equities(
+        date=date,
+        input_bhav_file=bhav_file,
+        input_bhav_fieldnames=bhav_fieldnames,
+        input_delv_file=delv_file,
+        input_delv_fieldnames=delv_fieldnames,
+        output_data=output_data,
+    )
     _finalize_output(output_data)
     write_csv(eq_file, eq_header, eq_fieldnames, output_data)
     if os.path.exists(bhav_file):
         os.remove(bhav_file)
 
 
-def _output_nse_futures(date,
-                        input_location=os.path.join(os.getcwd(),
-                                                    'downloads'),
-                        output_location=os.path.join(os.getcwd(),
-                                                     'processed_data')):
+def _output_nse_futures(
+    date,
+    input_location=DOWNLOAD_DIR,
+    output_location=PROCESSED_DIR,
+):
     """Outputs the files for NSE Futures as csv.
 
     :param date: date for which files to be processed
@@ -1341,14 +1409,15 @@ def _output_nse_futures(date,
     bhav_fieldnames, fut_fieldnames = _get_nse_futures_fieldnames(date)
 
     # The header line which we would write in the output file
-    fut_header = 'Symbol', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume', \
-                 'OI'
+    fut_header = "Symbol", "Date", "Open", "High", "Low", "Close", "Volume", "OI"
 
     output_data = []
-    _parse_nse_futures(date=date,
-                       input_file=bhav_file,
-                       input_fieldnames=bhav_fieldnames,
-                       output_data=output_data)
+    _parse_nse_futures(
+        date=date,
+        input_file=bhav_file,
+        input_fieldnames=bhav_fieldnames,
+        output_data=output_data,
+    )
     _finalize_output(output_data)
     write_csv(fut_file, fut_header, fut_fieldnames, output_data)
     if os.path.exists(bhav_file):
