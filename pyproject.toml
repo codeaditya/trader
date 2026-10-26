@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=84"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.32.4"]
+build-backend = "hatchling.build"
 
 [project]
 name = "trader"
@@ -34,8 +34,8 @@ Homepage = "https://github.com/codeaditya/trader"
 Repository = "https://github.com/codeaditya/trader"
 Issues = "https://github.com/codeaditya/trader/issues"
 
-[tool.setuptools]
-py-modules = ["trader"]
+[tool.hatch.build.targets.wheel]
+only-include = ["trader.py"]
 
 # ... other project metadata fields as listed in:
 #     https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
